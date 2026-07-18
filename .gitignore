@@ -1,0 +1,10 @@
+# Insumos crudos pesados (no versionar; se descargan aparte)
+data/_raw_mefp/
+*.csv
+!data/*.csv
+
+# Temporales
+__pycache__/
+*.pyc
+.DS_Store
+scratch/

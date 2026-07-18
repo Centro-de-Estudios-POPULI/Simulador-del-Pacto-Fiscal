@@ -1,0 +1,278 @@
+{
+ "meta": {
+  "fuente": "MEFP Presupuesto Abierto - ingreso gestión 2025 (percibido)",
+  "clasificador": "rubro 13000 Ingresos por Impuestos",
+  "nota_efectivo": "ef/cert por último dígito de rubro_sub_cuenta (2,7=certificados)",
+  "unidad": "Bs"
+ },
+ "impuestos": [
+  {
+   "cuenta": "13130",
+   "sigla": "IVA-MI",
+   "desc": "Impuesto al Valor Agregado - Mercado Interno",
+   "grupo": "Renta Interna",
+   "nivel": "nacional",
+   "coparticipable": true,
+   "nota": "",
+   "ef": 13271910085,
+   "cert": 329951278,
+   "total": 13601861363
+  },
+  {
+   "cuenta": "13110",
+   "sigla": "IUE",
+   "desc": "Impuesto Sobre las Utilidades de las Empresas",
+   "grupo": "Renta Interna",
+   "nivel": "nacional",
+   "coparticipable": true,
+   "nota": "",
+   "ef": 10096957533,
+   "cert": 384594330,
+   "total": 10481551863
+  },
+  {
+   "cuenta": "13140",
+   "sigla": "IVA-M",
+   "desc": "Impuesto al Valor Agregado - Importaciones",
+   "grupo": "Renta Interna",
+   "nivel": "nacional",
+   "coparticipable": true,
+   "nota": "",
+   "ef": 7298219546,
+   "cert": 871926379,
+   "total": 8170145925
+  },
+  {
+   "cuenta": "13120",
+   "sigla": "IT",
+   "desc": "Impuesto a las Transacciones",
+   "grupo": "Renta Interna",
+   "nivel": "nacional",
+   "coparticipable": true,
+   "nota": "",
+   "ef": 6047729851,
+   "cert": 1275387795,
+   "total": 7323117646
+  },
+  {
+   "cuenta": "13190",
+   "sigla": "Otros",
+   "desc": "Otros Impuestos",
+   "grupo": "Renta Interna",
+   "nivel": "nacional",
+   "coparticipable": null,
+   "nota": "",
+   "ef": 7075166738,
+   "cert": 229982407,
+   "total": 7305149145
+  },
+  {
+   "cuenta": "13170",
+   "sigla": "IEHD/IDH",
+   "desc": "Impuestos a los Hidrocarburos",
+   "grupo": "Hidrocarburos",
+   "nivel": "nacional",
+   "coparticipable": false,
+   "nota": "Régimen propio: IEHD 25% deptos (Ley 1654), IDH Ley 3058. No entra a la masa.",
+   "ef": 3515029432,
+   "cert": 1213117986,
+   "total": 4728147418
+  },
+  {
+   "cuenta": "13210",
+   "sigla": "GA",
+   "desc": "Gravamen Arancelario",
+   "grupo": "Renta Aduanera",
+   "nivel": "nacional",
+   "coparticipable": true,
+   "nota": "Coparticipable sobre base NETA: menos certificados y presupuesto Aduana (<=10%, Ley 2042 art.25).",
+   "ef": 2396531106,
+   "cert": 130582791,
+   "total": 2807904330,
+   "ef_bruto": 2677321539,
+   "deduccion_aduana": 280790433
+  },
+  {
+   "cuenta": "13150",
+   "sigla": "ICE-MI",
+   "desc": "Impuesto a los Consumos Específicos - Mercado Interno",
+   "grupo": "Renta Interna",
+   "nivel": "nacional",
+   "coparticipable": true,
+   "nota": "",
+   "ef": 2385565735,
+   "cert": 175144389,
+   "total": 2560710124
+  },
+  {
+   "cuenta": "13310",
+   "sigla": "IPBI",
+   "desc": "Impuesto a la Propiedad de Bienes Inmuebles",
+   "grupo": "Municipal",
+   "nivel": "municipal",
+   "coparticipable": false,
+   "nota": "",
+   "ef": 1847565257,
+   "cert": 0,
+   "total": 1847565257
+  },
+  {
+   "cuenta": "13330",
+   "sigla": "IPVA",
+   "desc": "Impuesto a la Propiedad de Vehículos Automotores",
+   "grupo": "Municipal",
+   "nivel": "municipal",
+   "coparticipable": false,
+   "nota": "",
+   "ef": 1122366265,
+   "cert": 0,
+   "total": 1122366265
+  },
+  {
+   "cuenta": "13160",
+   "sigla": "ICE-M",
+   "desc": "Impuesto a los Consumos Específicos - Importaciones",
+   "grupo": "Renta Interna",
+   "nivel": "nacional",
+   "coparticipable": true,
+   "nota": "",
+   "ef": 868192450,
+   "cert": 395569,
+   "total": 868588019
+  },
+  {
+   "cuenta": "13360",
+   "sigla": "ITMI",
+   "desc": "Impuesto Municipal a la Transferencia de Inmuebles",
+   "grupo": "Municipal",
+   "nivel": "municipal",
+   "coparticipable": false,
+   "nota": "",
+   "ef": 640577571,
+   "cert": 0,
+   "total": 640577571
+  },
+  {
+   "cuenta": "13410",
+   "sigla": "ITGB",
+   "desc": "Imp.alaSuc.Hered.yDon.de BienesInmueblesyMueb.Suje.aReg.Púb",
+   "grupo": "Departamental",
+   "nivel": "departamental",
+   "coparticipable": false,
+   "nota": "",
+   "ef": 102672085,
+   "cert": 0,
+   "total": 102672085
+  },
+  {
+   "cuenta": "13370",
+   "sigla": "IMT",
+   "desc": "Impuesto Municipal a las Transferencias de Inmuebles y Vehìculos Automotores - IMT",
+   "grupo": "Municipal",
+   "nivel": "municipal",
+   "coparticipable": false,
+   "nota": "",
+   "ef": 72340821,
+   "cert": 0,
+   "total": 72340821
+  },
+  {
+   "cuenta": "13390",
+   "sigla": "Otros-M",
+   "desc": "Otros",
+   "grupo": "Municipal",
+   "nivel": "municipal",
+   "coparticipable": false,
+   "nota": "",
+   "ef": 8849735,
+   "cert": 0,
+   "total": 8849735
+  },
+  {
+   "cuenta": "13490",
+   "sigla": "Otros-D",
+   "desc": "Otros",
+   "grupo": "Departamental",
+   "nivel": "departamental",
+   "coparticipable": false,
+   "nota": "",
+   "ef": 234864,
+   "cert": 0,
+   "total": 234864
+  }
+ ],
+ "otros_impuestos": [
+  {
+   "sub": "13199",
+   "sigla": "IPJ/Otros",
+   "desc": "Impuesto a la Participación en Juegos - IPJ",
+   "coparticipable": false,
+   "ef": 5611200319,
+   "cert": 0,
+   "total": 5611200319
+  },
+  {
+   "sub": "13191",
+   "sigla": "RC-IVA",
+   "desc": "Régimen Complementario al IVA - RC IVA",
+   "coparticipable": true,
+   "ef": 1091402128,
+   "cert": 0,
+   "total": 1091402128
+  },
+  {
+   "sub": "13197",
+   "sigla": "Otros-cert",
+   "desc": "En Certificados de Crédito Fiscal",
+   "coparticipable": false,
+   "ef": 0,
+   "cert": 229982407,
+   "total": 229982407
+  },
+  {
+   "sub": "13198",
+   "sigla": "ITF",
+   "desc": "Impuesto a las Transacciones Financieras - ITF",
+   "coparticipable": false,
+   "ef": 224222647,
+   "cert": 0,
+   "total": 224222647
+  },
+  {
+   "sub": "13192",
+   "sigla": "ISAE",
+   "desc": "Impuesto a las Salidas Aéreas al Exterior - ISAE",
+   "coparticipable": true,
+   "ef": 74189253,
+   "cert": 0,
+   "total": 74189253
+  },
+  {
+   "sub": "13194",
+   "sigla": "RAU",
+   "desc": "Régimen Agropecuario Unificado - RAU",
+   "coparticipable": false,
+   "ef": 37352215,
+   "cert": 0,
+   "total": 37352215
+  },
+  {
+   "sub": "13195",
+   "sigla": "RTS",
+   "desc": "Régimen Tributario Simplificado - RTS",
+   "coparticipable": false,
+   "ef": 36704334,
+   "cert": 0,
+   "total": 36704334
+  },
+  {
+   "sub": "13196",
+   "sigla": "STI",
+   "desc": "Régimen Tributario Integrado - STI",
+   "coparticipable": false,
+   "ef": 95841,
+   "cert": 0,
+   "total": 95841
+  }
+ ]
+}

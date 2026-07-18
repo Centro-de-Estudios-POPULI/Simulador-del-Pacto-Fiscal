@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador del Pacto Fiscal — Observatorio de Finanzas Públicas · POPULI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --serif:"Playfair Display",Georgia,"Times New Roman",serif;
+    --mono:"Inter",ui-monospace,"Cascadia Mono",Consolas,monospace;
+    --accent:#b47a4f; --accent-bright:#8a5a37;
+    --c-tgn:#45607a; --c-gad:#b47a4f; --c-mun:#9d2b2b; --c-uni:#3f8a7d;
+    --ground:#fbfdff; --surface:#ffffff; --surface-2:#f4f7fb;
+    --ink:#2d2e2f; --muted:#64748b; --tenue:#94a3b8; --line:#e2e6ee; --faint:#eef2f7;
+    --pos:#2f7d5b; --error:#9d2b2b; --radius:12px; --glass:rgba(251,253,255,.72);
+    --shadow:0 .5rem 1.5rem #21354714; --shadow-pop:0 .6rem 1.6rem #2135471f;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--ground:#12151b;--surface:#1a1e26;--surface-2:#161a21;--ink:#e8ecf2;
+      --muted:#9aa6b6;--tenue:#6b7789;--line:#2a303b;--faint:#20252e;--glass:rgba(20,24,30,.72);
+      --accent-bright:#d19b71;--shadow:0 .5rem 1.5rem rgba(0,0,0,.4);--shadow-pop:0 .6rem 1.6rem rgba(0,0,0,.6);}
+  }
+  :root[data-theme="dark"]{--ground:#12151b;--surface:#1a1e26;--surface-2:#161a21;--ink:#e8ecf2;
+    --muted:#9aa6b6;--tenue:#6b7789;--line:#2a303b;--faint:#20252e;--glass:rgba(20,24,30,.72);
+    --accent-bright:#d19b71;--shadow:0 .5rem 1.5rem rgba(0,0,0,.4);--shadow-pop:0 .6rem 1.6rem rgba(0,0,0,.6);}
+  :root[data-theme="light"]{--ground:#fbfdff;--surface:#fff;--surface-2:#f4f7fb;--ink:#2d2e2f;
+    --muted:#64748b;--tenue:#94a3b8;--line:#e2e6ee;--faint:#eef2f7;--glass:rgba(251,253,255,.72);
+    --accent-bright:#8a5a37;--shadow:0 .5rem 1.5rem #21354714;--shadow-pop:0 .6rem 1.6rem #2135471f;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+    font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+  h1,h2,h3{margin:0;line-height:1.15}
+  h1,h2{font-family:var(--serif);font-weight:700;letter-spacing:-.01em}
+  h1{font-weight:800}
+  h3{font-family:var(--sans);font-weight:700;letter-spacing:-.02em}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  a{color:var(--accent-bright)}
+  .microlab{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tenue)}
+
+  /* header */
+  header{position:sticky;top:0;z-index:30;background:var(--glass);
+    backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;gap:14px;height:62px}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0;flex:1 1 auto}
+  .brand .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(150deg,var(--accent),#9a663f);
+    flex:0 0 auto;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;letter-spacing:-.02em;
+    box-shadow:var(--shadow)}
+  .brand .bt{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+  .brand b{font-size:15px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand span{color:var(--muted);font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .spacer{flex:1}
+  .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:3px}
+  .seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;
+    padding:6px 12px;border-radius:7px;cursor:pointer;white-space:nowrap}
+  .seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+  .icon-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink);display:grid;place-items:center;font-size:15px;cursor:pointer;flex:0 0 auto}
+
+  /* hero */
+  .hero{padding:34px 0 8px}
+  .hero h1{font-size:clamp(26px,4vw,40px)}
+  .hero .lede{max-width:66ch;color:var(--muted);margin:12px 0 0;font-size:16px}
+  .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);
+    padding:4px 10px;border-radius:999px;margin-bottom:14px}
+
+  /* layout */
+  .grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:22px;align-items:start;margin-top:22px}
+  .grid>*{min-width:0}
+  .panel{position:sticky;top:74px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card>.hd h3{font-size:15px}
+  .card+.card{margin-top:16px}
+  .card>.hd{padding:14px 16px 0}
+  .card>.bd{padding:14px 16px 16px}
+  .card h3{font-size:16px}
+  .card .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+  section{margin-top:30px}
+  section>h2{font-size:22px;margin-bottom:4px}
+  section>.sub{color:var(--muted);font-size:13.5px;margin-bottom:14px;max-width:80ch}
+
+  /* tax selector */
+  .presets{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
+  .chip{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:12px;
+    font-weight:600;padding:5px 10px;border-radius:999px;cursor:pointer}
+  .chip:hover{border-color:var(--accent)}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .taxlist{display:flex;flex-direction:column;gap:2px}
+  .tax{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:9px;cursor:pointer}
+  .tax:hover{background:var(--surface-2)}
+  .tax.lock{opacity:.5;cursor:not-allowed}
+  .tax .box{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--line);flex:0 0 auto;
+    display:grid;place-items:center;font-size:11px;color:#fff;background:var(--surface)}
+  .tax.sel .box{background:var(--accent);border-color:var(--accent)}
+  .tax.lock .box{border-style:dashed;background:var(--faint)}
+  .tax .nm{flex:1;min-width:0;font-size:13px}
+  .tax .nm small{display:block;color:var(--muted);font-size:11px;line-height:1.3}
+  .tax .amt{font-family:var(--mono);font-size:12px;color:var(--ink);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tax .amt .u{color:var(--tenue);font-weight:500;font-size:10px}
+  .tax.lock .amt{color:var(--muted);font-weight:500}
+  .basebar{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline}
+  .basebar .n{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--accent)}
+
+  /* sliders */
+  .slrow{margin:13px 0}
+  .slrow .top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:3px}
+  .slrow .top b{font-family:var(--mono);font-size:13.5px}
+  .slrow .top .dot{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:middle}
+  input[type=range]{width:100%;accent-color:var(--accent);height:20px;cursor:pointer}
+  .splitmini{height:9px;border-radius:5px;overflow:hidden;display:flex;margin:10px 0 2px;border:1px solid var(--line)}
+  .splitmini>div{height:100%;transition:flex-basis .3s ease}
+  .hint{color:var(--muted);font-size:11.5px;margin-top:8px}
+  .reset{border:0;background:none;color:var(--accent-bright);font:inherit;font-size:12px;font-weight:600;
+    cursor:pointer;padding:0;margin-top:10px}
+  /* reparto manual/auto */
+  .seg.sm button{padding:4px 10px;font-size:11.5px}
+  .moderow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .splitgrid{display:flex;flex-direction:column;gap:11px}
+  .splitrow .sl-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+  .splitrow .nm{font-size:12.5px;font-weight:600;display:flex;align-items:center}
+  .splitrow .nm .dot{margin-right:7px}
+  .pcell{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:7px;
+    padding:2px 6px 2px 8px;background:var(--surface-2)}
+  .pcell.bad{border-color:var(--error);box-shadow:0 0 0 2px color-mix(in srgb,var(--error) 18%,transparent)}
+  .pctin{width:52px;border:0;background:transparent;color:var(--ink);font:inherit;font-weight:700;
+    font-size:13.5px;text-align:right;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+  .pctin:focus{outline:none}
+  .pctin::-webkit-outer-spin-button,.pctin::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .pcell .pk{color:var(--muted);font-size:12px;font-weight:600}
+  .splitrow .slbs{font-size:10.5px;color:var(--tenue);text-align:right;margin-top:2px;font-variant-numeric:tabular-nums}
+  .sumbar{display:flex;align-items:center;gap:8px;margin-top:9px;font-size:12px;font-weight:600;flex-wrap:wrap}
+  .sumbar .ok{color:var(--pos)}
+  .sumbar .bad{color:var(--error)}
+  .sumbar .muted2{color:var(--muted);font-weight:500}
+  .mini-fix{border:1px solid var(--error);background:color-mix(in srgb,var(--error) 8%,transparent);
+    color:var(--error);font:inherit;font-size:11px;font-weight:700;border-radius:6px;padding:3px 9px;cursor:pointer}
+  .presetsplit{display:flex;flex-wrap:wrap;gap:5px;margin-top:11px}
+  .chip.xs{font-size:10.5px;padding:3px 8px}
+
+  /* kpis */
+  .resmode{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+  .kpi{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:14px 15px 13px 18px;box-shadow:var(--shadow);overflow:hidden}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--kc,var(--accent))}
+  .kpi .lab{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);font-weight:600}
+  .kpi .lab .pct{margin-left:auto;font-family:var(--mono);color:var(--ink)}
+  .kpi .big{font-family:var(--serif);font-size:25px;font-weight:600;margin:6px 0 2px}
+  .kpi .sub{font-size:11.5px;color:var(--muted)}
+  .dot{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+
+  /* split bars */
+  .splitbar{height:38px;border-radius:9px;overflow:hidden;display:flex;margin:6px 0}
+  .splitbar>div{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;
+    min-width:0;transition:flex-basis .35s ease}
+  .splitbar>div.add{background-image:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(255,255,255,.18) 5px,rgba(255,255,255,.18) 10px)}
+  .splitbar>div span{white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.25);overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+  .splitcap{font-size:12px;color:var(--muted);font-weight:600;margin-top:8px}
+  .legend-it{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:12.5px}
+  .legend-it .it{display:flex;align-items:center;gap:6px}
+
+  /* maps */
+  .maprow{display:flex;gap:20px;align-items:flex-start}
+  .mapcol{flex:0 0 clamp(300px,44vw,560px);min-width:0}
+  .readcol{flex:1 1 0;min-width:0;position:sticky;top:74px}
+  .maphd{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+  .mapwrap{position:relative;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;aspect-ratio:1000/1132;width:100%}
+  svg.map{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+  svg.map.drag{cursor:grabbing}
+  svg.map path{stroke:var(--surface);stroke-width:.4;stroke-linejoin:round;transition:fill .25s}
+  svg.map.dep path{stroke-width:1.1}
+  svg.map path.nac{fill:var(--faint);stroke:none;pointer-events:none;transition:none}
+  svg.map path:hover{stroke:var(--ink);stroke-width:1.1}
+  .maptools{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
+  .maptools button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink);font-size:17px;font-weight:600;box-shadow:var(--shadow);cursor:pointer;display:grid;place-items:center}
+  .readbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .hero-lab{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  .hero-num{font-family:var(--serif);font-size:30px;font-weight:600;margin:2px 0 10px;color:var(--accent)}
+  dl.kv{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin:10px 0 0}
+  dl.kv dt{color:var(--muted);font-size:13px}
+  dl.kv dd{margin:0;font-family:var(--mono);font-size:13px;text-align:right}
+  .legend{margin-top:16px}
+  .legend .cap{font-size:12px;color:var(--muted);margin-bottom:5px}
+  .legend .scale{height:10px;border-radius:5px}
+  .legend .ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;cursor:pointer;position:sticky;top:0;background:var(--surface)}
+  tbody tr:hover{background:var(--surface-2)}
+  .swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:middle}
+  .barcell{position:relative}
+  .barcell .bar{position:absolute;left:0;top:50%;transform:translateY(-50%);height:60%;background:color-mix(in srgb,var(--accent) 16%,transparent);border-radius:3px;z-index:0}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .toolbar input,.toolbar select{padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:13.5px}
+  .toolbar input[type=search]{flex:1;min-width:150px}
+  .scroll{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius)}
+  table.cmp th{text-align:right;vertical-align:top;white-space:normal;min-width:130px}
+  table.cmp th:first-child,table.cmp td:first-child{text-align:left}
+  table.cmp td{vertical-align:top}
+  .cmpbtn{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:10.5px;font-weight:600;border-radius:6px;padding:2px 8px;cursor:pointer}
+  .cmpbtn:hover{border-color:var(--accent)}
+  .cmpbtn.del{color:var(--error);border-color:color-mix(in srgb,var(--error) 30%,var(--line))}
+
+  .deptbars{display:flex;flex-direction:column;gap:6px}
+  .deptbars .row{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;font-size:12.5px}
+  .deptbars .track{height:16px;background:var(--faint);border-radius:5px;overflow:hidden;display:flex}
+  .deptbars .track>div{height:100%}
+
+  .ecosys{margin:44px 0 0;padding:20px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius)}
+  .ecosys .eco-links{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 0}
+  .eco{display:inline-flex;align-items:center;text-decoration:none;font-size:13px;font-weight:600;color:var(--ink);
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px}
+  .eco:hover{border-color:var(--accent);color:var(--accent-bright)}
+  .eco-note{color:var(--muted);font-size:12.5px;margin:12px 0 0;max-width:82ch}
+  footer{margin:18px 0 30px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  .meth{columns:2;column-gap:28px;font-size:13px;color:var(--muted)}
+  .meth p{break-inside:avoid;margin:0 0 11px}
+  .meth b{color:var(--ink)}
+
+  @media (max-width:920px){
+    .grid{grid-template-columns:minmax(0,1fr)}
+    .panel{position:static}
+    .maprow{flex-direction:column}
+    .mapcol{flex:auto;width:100%}
+    .readcol{position:static;width:100%}
+    .meth{columns:1}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <div class="brand">
+      <div class="mark">OFP</div>
+      <div class="bt"><b>Simulador del Pacto Fiscal</b>
+      <span>Observatorio de Finanzas Públicas y Desarrollo Territorial · Centro de Estudios POPULI</span></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="seg" id="baseSeg" title="La ley coparticipa la recaudación en efectivo. Ampliar a certificados es un supuesto.">
+      <button data-base="efectivo" class="on">Efectivo</button>
+      <button data-base="total">+ Certificados</button>
+    </div>
+    <button class="icon-btn" id="themeBtn" title="Tema">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <span class="tag">Módulo: coparticipación tributaria · Modelo incremental · Gestión 2025</span>
+    <h1>¿Y si Bolivia coparticipara otros impuestos —y con otro reparto?</h1>
+    <p class="lede">Elegí qué impuestos forman la <b>masa coparticipable</b> y movés cómo se reparte entre
+      el TGN, las gobernaciones, los municipios y las universidades. El tablero mide el <b>dinero adicional</b>
+      que cada nivel de gobierno y cada territorio recibiría respecto al régimen legal vigente
+      (Ley 1551 / Ley 031). Datos de recaudación 2025 del Presupuesto Abierto del MEFP.</p>
+  </div>
+
+  <div class="grid">
+    <!-- ===== PANEL DE CONTROL ===== -->
+    <aside class="panel">
+      <div class="card">
+        <div class="hd"><h3>1 · Base coparticipable</h3><div class="sub">Impuestos nacionales de renta interna que entran a la masa a repartir.</div></div>
+        <div class="bd">
+          <div class="presets" id="presets"></div>
+          <div class="taxlist" id="taxlist"></div>
+          <div class="basebar"><span class="hero-lab">Masa seleccionada</span><span class="n mono" id="baseMM">—</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd"><h3>2 · Reparto de la masa</h3><div class="sub">Escribí los porcentajes o usá los deslizadores. En <b>Automático</b> el resto se rebalancea solo; en <b>Manual</b> ponés cifras exactas y el tablero valida que sumen 100%.</div></div>
+        <div class="bd">
+          <div class="moderow">
+            <span class="microlab">Ajuste</span>
+            <div class="seg sm" id="splitMode">
+              <button data-mode="auto" class="on">Automático</button>
+              <button data-mode="manual">Manual</button>
+            </div>
+          </div>
+          <div class="splitgrid" id="splitGrid"></div>
+          <div class="splitmini" id="splitMini" title="Reparto"></div>
+          <div class="sumbar" id="sumBar"></div>
+          <div class="presetsplit">
+            <button class="chip xs" data-sp="vig">Vigente 74,6/0/20/5,4</button>
+            <button class="chip xs" data-sp="prop">Propuesta 50/17/27/6</button>
+            <button class="chip xs" data-sp="mitad">50/25/25/0</button>
+          </div>
+          <button class="reset" id="resetSplit">↺ Restablecer al régimen vigente</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd"><h3>3 · Fondo de equidad</h3><div class="sub">Rige cómo se reparten entre municipios <b>los puntos adicionales</b> (lo que exceda el 20% legal, que sigue por población).</div></div>
+        <div class="bd" id="critBox"></div>
+      </div>
+    </aside>
+
+    <!-- ===== RESULTADOS ===== -->
+    <div>
+      <div class="resmode">
+        <span class="microlab">Ver</span>
+        <div class="seg sm" id="resMode">
+          <button data-r="incremental" class="on">Adicional (vs. vigente)</button>
+          <button data-r="total">Total (bajo la propuesta)</button>
+        </div>
+      </div>
+      <div class="kpis" id="kpis"></div>
+
+      <section>
+        <h2>Reparto de la masa: hoy vs. tu escenario</h2>
+        <div class="sub">Participación efectiva de cada nivel sobre la masa seleccionada. El tramo rayado es el <b>adicional</b> de la propuesta.</div>
+        <div class="splitcap">Régimen vigente</div>
+        <div class="splitbar" id="splitbarVig"></div>
+        <div class="splitcap">Tu escenario</div>
+        <div class="splitbar" id="splitbarProp"></div>
+        <div class="legend-it" id="splitLegend"></div>
+      </section>
+
+      <section>
+        <h2>Mapa del dinero adicional</h2>
+        <div class="sub">Vista departamental con georreferencia propia; hacé clic en un departamento para bajar a sus municipios.</div>
+        <div class="maphd">
+          <div class="seg" id="viewSeg">
+            <button data-view="dep" class="on">Departamental</button>
+            <button data-view="mun">Municipal</button>
+          </div>
+          <div class="seg" id="metricSeg"></div>
+          <button class="chip" id="backBtn" style="display:none">↩ Volver al país</button>
+        </div>
+        <div class="maprow">
+          <div class="mapcol">
+            <div class="mapwrap">
+              <svg class="map" id="map" viewBox="0 0 1000 1132"></svg>
+              <div class="maptools">
+                <button id="zIn">+</button><button id="zOut">−</button><button id="zRe" title="Reencuadrar">⤢</button>
+              </div>
+            </div>
+          </div>
+          <div class="readcol"><div class="readbox" id="readBox"><div id="readBody"></div></div></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Por departamento</h2>
+        <div class="sub">Dinero al territorio (gobernación + municipios + universidad) bajo tu escenario, según el modo elegido arriba (adicional o total).</div>
+        <div class="deptbars" id="deptBars"></div>
+      </section>
+
+      <section>
+        <h2>Ranking de entidades</h2>
+        <div class="sub">Las 343 entidades (335 municipios + 8 autonomías indígenas), con su adicional municipal.</div>
+        <div class="toolbar">
+          <input type="search" id="q" placeholder="Buscar municipio…">
+          <select id="fDept"><option value="">Todos los departamentos</option></select>
+        </div>
+        <div class="scroll"><table id="rankT">
+          <thead><tr>
+            <th data-k="n">Entidad</th><th data-k="d">Depto</th><th data-k="p">Población</th>
+            <th data-k="_munB">Vigente (20%)</th><th data-k="_munA">Adicional</th>
+            <th data-k="_munPC">Adic./hab.</th><th data-k="_grow">Crecim.</th>
+          </tr></thead><tbody></tbody>
+        </table></div>
+      </section>
+
+      <section>
+        <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+          <h2>Comparador de escenarios</h2>
+          <button class="chip" id="saveScn">+ Guardar escenario actual</button>
+        </div>
+        <div class="sub">Guardá hasta 4 configuraciones (base + reparto + equidad) y compará el reparto lado a lado.</div>
+        <div id="cmpWrap"></div>
+      </section>
+
+      <section>
+        <h2>Metodología y base legal</h2>
+        <div class="meth" id="meth"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="ecosys wrap">
+    <span class="microlab">Parte del ecosistema del Observatorio</span>
+    <div class="eco-links">
+      <a class="eco" href="https://centro-de-estudios-populi.github.io/observatorio-ofpdt/">↩ Observatorio de Finanzas Públicas y Desarrollo Territorial</a>
+      <a class="eco" href="https://centro-de-estudios-populi.github.io/Atlas-Fiscal-Municipal/">Atlas Fiscal Municipal →</a>
+      <a class="eco" href="https://centro-de-estudios-populi.github.io/Finanzas-P-blicas-Departamentales/">Finanzas Públicas Departamentales →</a>
+    </div>
+    <p class="eco-note">Este simulador se nutre de ambos: los ingresos municipales y la equidad salen del <b>Atlas Fiscal Municipal</b>; los ingresos corrientes de gobernaciones, del portal de <b>Finanzas Públicas Departamentales</b> (CAIF).</p>
+  </div>
+  <footer class="wrap">
+    <b>Simulador del Pacto Fiscal — Centro de Estudios POPULI.</b> Ejercicio ilustrativo, no una asignación oficial.
+    Módulo de <b>coparticipación tributaria</b>: mide el reparto de la renta interna nacional entre niveles de gobierno.
+    Recaudación 2025 (percibido) del <b>Presupuesto Abierto del MEFP</b>; población, NBI y fragilidad fiscal del
+    Censo 2024 (INE) y SIGEP. Mapa SVG propio, sin librerías externas.
+  </footer>
+</main>
+
+<script>
+/* ===== DATOS (inyectados por build_simulador_fiscal.py) ===== */
+const IMP  = /*__IMP__*/  {impuestos:[],otros_impuestos:[]};
+const ENT  = /*__ENT__*/  [];
+const GOB  = /*__GOB__*/  {};
+const MMUNI= /*__MMUNI__*/{w:1000,h:1132,paths:{}};
+const MDEP = /*__MDEP__*/ {w:1000,h:1132,paths:{}};
+
+/* ===== CONSTANTES ===== */
+const VIG={tgn:.74645, gad:0, mun:.20, uni:.05355};   // Ley 031 D.T. 3ª/4ª; UPEA Ley 195/2011
+const UPEA=.00355, UPEA_DEPT='LA PAZ';
+const DEF_W={p:40,a:15,nb:30,fr:15};
+const CRIT=[
+  {k:'p', label:'Población', desc:'Proporcionalidad — más habitantes, más recursos'},
+  {k:'a', label:'Extensión territorial', desc:'Compensa municipios extensos y dispersos'},
+  {k:'nb',label:'Pobreza (NBI)', desc:'Redistributivo — prioriza a los más pobres'},
+  {k:'fr',label:'Fragilidad fiscal', desc:'Compensa la dependencia de transferencias'}
+];
+const DEPT_ORDER=['SANTA CRUZ','LA PAZ','COCHABAMBA','POTOSI','CHUQUISACA','ORURO','TARIJA','BENI','PANDO'];
+const SCALE=['#f7e9e4','#e9b7a8','#d07d63','#ab3f2e','#6d1410'];
+const RECEPTORS=[
+  {name:'TGN (Gobierno central)',short:'TGN',css:'--c-tgn',pk:'tgn'},
+  {name:'Gobernaciones',short:'Gober.',css:'--c-gad',pk:'gad'},
+  {name:'Municipios + GAIOC',short:'Municipios',css:'--c-mun',pk:'mun'},
+  {name:'Universidades',short:'Univ.',css:'--c-uni',pk:'uni'}
+];
+
+/* Presets de base coparticipable (por rubro_cuenta / sub_cuenta) */
+const PRESETS=[
+  {id:'it',   label:'IT',            sel:['13120']},
+  {id:'itiva',label:'IT + IVA',      sel:['13120','13130','13140']},
+  {id:'itue', label:'IT + IUE',      sel:['13120','13110']},
+  {id:'big3', label:'IT + IVA + IUE',sel:['13120','13130','13140','13110']},
+  {id:'ri',   label:'Renta interna completa', sel:'RI'}
+];
+
+/* ===== ESTADO ===== */
+let base='efectivo';                 // 'efectivo' | 'total'
+let split={tgn:50,gad:17,mun:27,uni:6};  // porcentajes (0-100) — TGN ancla
+let weights={...DEF_W};
+let sel=new Set(['13120']);          // rubros seleccionados (default: IT)
+let mapView='dep', mapMetric='total', drill=null, pinned=null;
+let resultMode='incremental';        // 'incremental' (adicional vs vigente) | 'total' (bajo la propuesta)
+const isTotal=()=>resultMode==='total';
+
+/* ===== HELPERS ===== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const nf=new Intl.NumberFormat('es-BO',{maximumFractionDigits:0});
+const nf1=new Intl.NumberFormat('es-BO',{minimumFractionDigits:1,maximumFractionDigits:1});
+const nf3=new Intl.NumberFormat('es-BO',{maximumFractionDigits:3});
+const fmtMM=b=>'Bs '+nf1.format(b/1e6)+' MM';
+const fmtFull=b=>'Bs '+nf.format(Math.round(b));
+const fmtPC=b=>'Bs '+nf1.format(b);
+const fmtGrow=x=>(x>=0?'+':'')+nf1.format(x*100)+'%';
+const pctTxt=v=>nf3.format(v*100)+'%';
+const titlecase=s=>s.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase());
+
+/* Catálogo de impuestos seleccionables y bloqueados */
+const TAXES=[];      // seleccionables (coparticipables)
+const LOCKED=[];     // no coparticipables (se muestran, no se eligen)
+(function buildCatalog(){
+  IMP.impuestos.forEach(t=>{
+    if(t.cuenta==='13190') return;                 // agregado "Otros" → se desglosa abajo
+    const item={id:t.cuenta,sigla:t.sigla,desc:t.desc,ef:t.ef,cert:t.cert,nota:t.nota||''};
+    (t.coparticipable? TAXES:LOCKED).push(item);
+  });
+  IMP.otros_impuestos.forEach(t=>{
+    if(t.total<1e6 && !t.coparticipable) return;    // ignora residuos ínfimos no coparticipables
+    const item={id:t.sub,sigla:t.sigla,desc:t.desc,ef:t.ef,cert:t.cert,nota:''};
+    (t.coparticipable? TAXES:LOCKED).push(item);
+  });
+  TAXES.sort((a,b)=>b.ef-a.ef); LOCKED.sort((a,b)=>b.ef-a.ef);
+})();
+const TAXBY={}; TAXES.forEach(t=>TAXBY[t.id]=t);
+const RI_IDS=TAXES.map(t=>t.id);   // "renta interna completa" = todos los coparticipables
+
+function selBase(){   // suma efectivo/cert de los impuestos seleccionados
+  let ef=0,cert=0; sel.forEach(id=>{const t=TAXBY[id]; if(t){ef+=t.ef;cert+=t.cert;}});
+  return {ef,cert,tot:ef+cert};
+}
+
+/* ===== CÁLCULO (incremental) ===== */
+function compute(){
+  const sb=selBase(), EF=sb.ef, B=(base==='total'?sb.tot:sb.ef);
+  const PROP={tgn:split.tgn/100,gad:split.gad/100,mun:split.mun/100,uni:split.uni/100};
+  // Vigente: siempre sobre efectivo; si la propuesta amplía a certificados, ese tramo (B−EF) hoy lo retiene el TGN.
+  const poolV={tgn:EF*VIG.tgn+(B-EF), gad:EF*VIG.gad, mun:EF*VIG.mun, uni:EF*VIG.uni};
+  const poolP={tgn:B*PROP.tgn, gad:B*PROP.gad, mun:B*PROP.mun, uni:B*PROP.uni};
+  const poolA={}; ['tgn','gad','mun','uni'].forEach(k=>poolA[k]=poolP[k]-poolV[k]);
+
+  const dpop={}; DEPT_ORDER.forEach(d=>dpop[d]=0);
+  ENT.forEach(e=>{ if(dpop[e.d]!==undefined) dpop[e.d]+=e.p; });
+  const totPop=Object.values(dpop).reduce((s,v)=>s+v,0);
+
+  const gadD={},uniV={},uniP={},uniA={};
+  DEPT_ORDER.forEach(d=>{
+    const sh=dpop[d]/totPop;
+    gadD[d]=poolP.gad*sh;                                              // gober: per cápita departamental
+    uniV[d]=EF*(VIG.uni-UPEA)*sh + (d===UPEA_DEPT?EF*UPEA:0);
+    uniP[d]=B*(PROP.uni-UPEA>0?PROP.uni-UPEA:0)*sh + (d===UPEA_DEPT?B*Math.min(UPEA,PROP.uni):0);
+    uniA[d]=uniP[d]-uniV[d];
+  });
+
+  // Fondo de equidad: solo sobre el adicional municipal (lo que exceda el 20% legal).
+  const w={p:weights.p/100,a:weights.a/100,nb:weights.nb/100,fr:weights.fr/100};
+  const keys=['p','a','nb','fr'], mm={};
+  keys.forEach(k=>{let mn=Infinity,mx=-Infinity;ENT.forEach(e=>{const v=e[k];if(v<mn)mn=v;if(v>mx)mx=v;});mm[k]=[mn,mx];});
+  let totScore=0; const sc=ENT.map(e=>{let s=0;keys.forEach(k=>{const[mn,mx]=mm[k];s+=w[k]*(mx>mn?(e[k]-mn)/(mx-mn):0);});totScore+=s;return s;});
+
+  const munBD={},munAD={}; DEPT_ORDER.forEach(d=>{munBD[d]=0;munAD[d]=0;});
+  ENT.forEach((e,i)=>{
+    e._munB=poolV.mun*e.p/totPop;
+    e._munA=totScore>0? poolA.mun*sc[i]/totScore : 0;
+    e._mun =e._munB+e._munA;
+    e._munPC=e.p>0? e._munA/e.p : 0;
+    e._grow =e.ic>0? e._munA/e.ic : 0;
+    munBD[e.d]+=e._munB; munAD[e.d]+=e._munA;
+  });
+
+  const gGrow={},dAdd={},dTot={};
+  DEPT_ORDER.forEach(d=>{
+    const gb=(GOB[d]&&GOB[d].base)||0;
+    gGrow[d]=gb>0? gadD[d]/gb : 0;
+    dAdd[d]=gadD[d]+munAD[d]+uniA[d];
+    dTot[d]=gadD[d]+munBD[d]+munAD[d]+uniP[d];
+  });
+  return {sb,EF,B,poolV,poolP,poolA,dpop,totPop,gadD,uniV,uniP,uniA,munBD,munAD,gGrow,dAdd,dTot};
+}
+
+/* ===== COLOR ===== */
+function hex2rgb(h){h=h.replace('#','');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+const lerp=(a,b,t)=>a+(b-a)*t;
+function ramp(t){t=Math.max(0,Math.min(1,t));const seg=(SCALE.length-1)*t,i=Math.min(SCALE.length-2,Math.floor(seg)),f=seg-i;const c0=hex2rgb(SCALE[i]),c1=hex2rgb(SCALE[i+1]);return`rgb(${Math.round(lerp(c0[0],c1[0],f))},${Math.round(lerp(c0[1],c1[1],f))},${Math.round(lerp(c0[2],c1[2],f))})`;}
+function gradientCss(){return`linear-gradient(90deg,${SCALE.join(',')})`;}
+let colorDomain=[0,1];
+function metricValM(e){
+  if(mapMetric==='crec') return e._grow;
+  if(mapMetric==='pc')  return isTotal()? (e.p>0?e._mun/e.p:0) : e._munPC;
+  return isTotal()? e._mun : e._munA;   // 'tot'
+}
+function metricValD(d,r){
+  if(mapMetric==='crec') return r.gGrow[d];
+  return isTotal()? r.dTot[d] : r.dAdd[d];   // 'total'
+}
+function computeDomain(r){
+  let vals;
+  if(geoMode()==='dep'){ vals=DEPT_ORDER.map(d=>metricValD(d,r)).filter(v=>v>0).sort((a,b)=>a-b); }
+  else { const pool=drill?ENT.filter(e=>e.d===drill):ENT; vals=pool.map(metricValM).filter(v=>v>0).sort((a,b)=>a-b); }
+  if(!vals.length){colorDomain=[0,1];return;}
+  const q=p=>vals[Math.min(vals.length-1,Math.floor(p*(vals.length-1)))];
+  colorDomain=[q(0.02),q(0.98)];
+}
+function colorScaled(v){const[a,b]=colorDomain;const t=b>a?(v-a)/(b-a):0;return ramp(t);}
+
+/* ===== MAPA (doble geometría) ===== */
+let vb={x:0,y:0,w:1000,h:1132};
+const byS={}; ENT.forEach(e=>byS[e.s]=e);
+const geoMode=()=>(mapView==='dep'&&!drill)?'dep':'mun';
+function renderPaths(){
+  const svg=$('#map'); const dep=geoMode()==='dep';
+  const M=dep?MDEP:MMUNI;
+  let html='';
+  if(dep && M.paths._NACIONAL) html+=`<path class="nac" d="${M.paths._NACIONAL}"></path>`;  // base que rellena el Salar
+  for(const k in M.paths){ if(k==='_NACIONAL')continue; html+=`<path data-k="${k}" d="${M.paths[k]}"></path>`; }
+  svg.innerHTML=html;
+  svg.classList.toggle('dep',dep);
+}
+function paintMap(){
+  const r=window._r; computeDomain(r); const dep=geoMode()==='dep';
+  $$('#map path').forEach(p=>{
+    const k=p.dataset.k; if(!k) return;   // silueta nacional (.nac): conserva su fill neutro
+    if(dep){ p.style.opacity=1; p.style.fill=colorScaled(metricValD(k,r)); return; }
+    const e=byS[k]; if(!e){p.style.fill='var(--faint)';p.style.opacity=.3;return;}
+    if(drill && e.d!==drill){ p.style.opacity=.1; p.style.fill='var(--faint)'; }
+    else { p.style.opacity=1; p.style.fill=colorScaled(metricValM(e)); }
+  });
+  renderLegend();
+}
+function renderLegend(){
+  const el=$('#legendBox'); if(!el)return;
+  el.querySelector('.scale').style.background=gradientCss();
+  const[a,b]=colorDomain; let fmt,cap; const AT=isTotal()?'Total':'Adicional', at=isTotal()?'total':'adicional';
+  if(geoMode()==='dep'){
+    if(mapMetric==='crec'){fmt=v=>fmtGrow(v);cap='Crecimiento del ingreso de la gobernación';}
+    else{fmt=v=>fmtMM(v);cap=`Dinero ${at} al departamento (gober. + mun. + univ.)`;}
+  }else{
+    if(mapMetric==='pc'){fmt=v=>fmtPC(v);cap=`${AT} municipal por habitante`;}
+    else if(mapMetric==='tot'){fmt=v=>fmtMM(v);cap=`${AT} municipal`;}
+    else{fmt=v=>fmtGrow(v);cap=(drill?'Crecimiento municipal en '+titlecase(drill):'Crecimiento municipal (adic. vs ing. corrientes)');}
+  }
+  el.querySelector('.cap').textContent=cap;
+  el.querySelector('.ticks').innerHTML=`<span>${fmt(a)}</span><span>${fmt((a+b)/2)}</span><span>${fmt(b)} +</span>`;
+}
+function applyVB(){$('#map').setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);}
+function zoomAt(f,cx,cy){const nx=cx-(cx-vb.x)*f,ny=cy-(cy-vb.y)*f,nw=vb.w*f,nh=vb.h*f;if(nw>1000*1.05||nw<1000*0.05)return;vb={x:nx,y:ny,w:nw,h:nh};applyVB();}
+function svgPoint(svg,e){const r=svg.getBoundingClientRect();return{x:vb.x+(e.clientX-r.left)/r.width*vb.w,y:vb.y+(e.clientY-r.top)/r.height*vb.h};}
+function enablePan(svg){
+  let dg=false,sx,sy;
+  svg.addEventListener('wheel',e=>{e.preventDefault();const pt=svgPoint(svg,e);zoomAt(e.deltaY>0?1.15:0.87,pt.x,pt.y);},{passive:false});
+  svg.addEventListener('pointerdown',e=>{dg=true;sx=e.clientX;sy=e.clientY;svg.classList.add('drag');svg.setPointerCapture(e.pointerId);});
+  svg.addEventListener('pointermove',e=>{if(!dg)return;const k=vb.w/svg.clientWidth;vb.x-=(e.clientX-sx)*k;vb.y-=(e.clientY-sy)*k;sx=e.clientX;sy=e.clientY;applyVB();});
+  svg.addEventListener('pointerup',()=>{dg=false;svg.classList.remove('drag');});
+  svg.addEventListener('pointercancel',()=>{dg=false;svg.classList.remove('drag');});
+}
+function zoomToDept(d){
+  let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9,found=false;
+  $$('#map path').forEach(p=>{const e=byS[p.dataset.k];if(!e||e.d!==d)return;found=true;const b=p.getBBox();mnx=Math.min(mnx,b.x);mny=Math.min(mny,b.y);mxx=Math.max(mxx,b.x+b.width);mxy=Math.max(mxy,b.y+b.height);});
+  if(!found)return;const pad=(mxx-mnx)*0.12+8;vb={x:mnx-pad,y:mny-pad,w:(mxx-mnx)+pad*2,h:(mxy-mny)+pad*2};applyVB();
+}
+function resetZoom(){vb={x:0,y:0,w:1000,h:1132};applyVB();}
+
+function buildMap(){
+  const svg=$('#map');
+  renderPaths();
+  svg.addEventListener('mousemove',e=>{const p=e.target.closest('path');if(p)hoverAt(p.dataset.k);});
+  svg.addEventListener('mouseleave',()=>{if(!pinned)showDefault();});
+  svg.addEventListener('click',e=>{const p=e.target.closest('path');if(p)clickAt(p.dataset.k);});
+  enablePan(svg);
+}
+function hoverAt(k){ if(geoMode()==='dep')showDept(k); else {const e=byS[k];if(e)showMuni(k);} }
+function clickAt(k){
+  if(geoMode()==='dep'){ drill=k; renderPaths(); zoomToDept(k); paintMap(); showDept(k); syncMetricSeg(); $('#backBtn').style.display=''; }
+  else { pinned=pinned===k?null:k; if(pinned)showMuni(k); else showDefault(); }
+}
+
+/* ===== PANEL DE LECTURA ===== */
+function legendMarkup(){return`<div class="legend" id="legendBox"><div class="cap"></div><div class="scale"></div><div class="ticks"></div></div>`;}
+function readShell(inner){$('#readBody').innerHTML=inner+legendMarkup();renderLegend();}
+function showDefault(){pinned=null; if(geoMode()==='dep')showNational(); else if(drill)showDrillHead(); else showNational();}
+const sgn=v=>(v>=0?'+':'−')+fmtMM(Math.abs(v));
+function showNational(){
+  const r=window._r, T=isTotal();
+  const rows=RECEPTORS.map(x=>`<dt><span class="swatch" style="background:var(${x.css})"></span>${x.short}</dt><dd>${T?fmtMM(r.poolP[x.pk]):sgn(r.poolA[x.pk])}</dd>`).join('');
+  readShell(`<div class="hero-lab">Masa coparticipable (${base==='total'?'efectivo + certif.':'efectivo'})</div>
+    <div class="hero-num">${fmtMM(r.B)}</div>
+    <p style="margin:0;color:var(--muted);font-size:13px">${T?'Monto <b>total</b> que recibiría cada nivel bajo tu escenario:':'Dinero <b>adicional</b> por nivel de gobierno respecto al régimen vigente:'}</p>
+    <dl class="kv">${rows}</dl>`);
+}
+function showDrillHead(){
+  const r=window._r, d=drill, T=isTotal();
+  readShell(`<div class="hero-lab">${titlecase(d)} · municipios</div>
+    <div class="hero-num">${fmtMM(T?(r.munBD[d]+r.munAD[d]):r.munAD[d])}</div>
+    <p style="margin:0;color:var(--muted);font-size:13px">${T?'Total':'Adicional'} municipal en ${titlecase(d)}. Pasá el cursor por cada municipio.</p>`);
+}
+function showDept(d){
+  const r=window._r, T=isTotal();
+  const g=r.gadD[d], m=T?(r.munBD[d]+r.munAD[d]):r.munAD[d], u=T?r.uniP[d]:r.uniA[d], tt=T?r.dTot[d]:r.dAdd[d];
+  readShell(`<div class="hero-lab">Departamento</div><div class="hero-num">${titlecase(d)}</div>
+    <dl class="kv">
+      <dt><span class="swatch" style="background:var(--c-gad)"></span>Gobernación</dt><dd>${T?fmtMM(g):sgn(g)}</dd>
+      <dt><span class="swatch" style="background:var(--c-mun)"></span>Municipios${T?'':' (adic.)'}</dt><dd>${T?fmtMM(m):sgn(m)}</dd>
+      <dt><span class="swatch" style="background:var(--c-uni)"></span>Universidad${T?'':' (adic.)'}</dt><dd>${T?fmtMM(u):sgn(u)}</dd>
+      <dt><b>Total ${T?'departamento':'adicional'}</b></dt><dd><b>${T?fmtMM(tt):sgn(tt)}</b></dd>
+      <dt>Crecim. gobernación</dt><dd>${fmtGrow(r.gGrow[d])}</dd>
+    </dl>
+    <p style="margin:10px 0 0;color:var(--muted);font-size:12px">Clic para ver el detalle municipal.</p>`);
+}
+function showMuni(k){
+  const e=byS[k]; if(!e)return; const T=isTotal();
+  readShell(`<div class="hero-lab">${e.t} · ${titlecase(e.d)}</div><div class="hero-num">${e.n}</div>
+    <dl class="kv">
+      <dt>Población (2024)</dt><dd>${nf.format(e.p)}</dd>
+      <dt>Vigente (20%)</dt><dd>${fmtMM(e._munB)}</dd>
+      <dt><b>${T?'Total':'Adicional'}</b></dt><dd><b>${T?fmtMM(e._mun):sgn(e._munA)}</b></dd>
+      <dt>${T?'Total':'Adicional'} por habitante</dt><dd>${fmtPC(T?(e.p>0?e._mun/e.p:0):e._munPC)}</dd>
+      <dt>Crecimiento</dt><dd>${fmtGrow(e._grow)}</dd>
+      <dt>NBI pobreza</dt><dd>${nf1.format(e.nb)}%</dd>
+    </dl>`);
+}
+
+/* ===== SPLIT + KPIs ===== */
+function splitHTML(pool,B,poolA){
+  return RECEPTORS.map(x=>{
+    const s=pool[x.pk]/B; if(s<=0.0001)return'';
+    const a=poolA?Math.max(0,poolA[x.pk])/B:0, solid=s-a;
+    return(solid>0.0001?`<div style="flex:${solid} 1 0;background:var(${x.css})"><span>${x.short} ${pctTxt(s)}</span></div>`:'')
+         +(a>0.0001?`<div class="add" style="flex:${a} 1 0;background:var(${x.css})"><span>${solid>0.0001?'':x.short+' '}+${pctTxt(a)}</span></div>`:'');
+  }).join('');
+}
+function renderSplit(r){
+  $('#splitbarVig').innerHTML=splitHTML(r.poolV,r.B,null);
+  $('#splitbarProp').innerHTML=splitHTML(r.poolP,r.B,r.poolA);
+  $('#splitLegend').innerHTML=RECEPTORS.map(x=>{
+    const v=r.poolV[x.pk]/r.B,p=r.poolP[x.pk]/r.B,dd=p-v,sign=dd>=0?'+':'−';
+    return`<div class="it"><span class="dot" style="background:var(${x.css})"></span>${x.name} · <b class="mono">${pctTxt(v)}→${pctTxt(p)}</b> <span class="mono" style="color:${dd>=0?'var(--pos)':'var(--accent)'}">(${sign}${pctTxt(Math.abs(dd))})</span></div>`;
+  }).join('');
+  $('#kpis').innerHTML=RECEPTORS.map(x=>{
+    const a=r.poolA[x.pk],sign=a>=0?'+':'−';
+    const big = isTotal()? fmtMM(r.poolP[x.pk]) : `${sign}${fmtMM(Math.abs(a))}`;
+    const sub = isTotal()
+      ? `adicional ${sign}${fmtMM(Math.abs(a))} · hoy ${fmtMM(r.poolV[x.pk])}`
+      : `hoy ${fmtMM(r.poolV[x.pk])} → ${fmtMM(r.poolP[x.pk])}`;
+    return`<div class="kpi" style="--kc:var(${x.css})">
+      <div class="lab"><span class="dot" style="background:var(${x.css})"></span>${x.name}<span class="pct">${pctTxt(r.poolP[x.pk]/r.B)}</span></div>
+      <div class="big">${big}</div>
+      <div class="sub">${sub}</div></div>`;
+  }).join('');
+}
+
+/* ===== DEPT BARS ===== */
+function renderDeptBars(r){
+  const tot=d=>isTotal()?r.dTot[d]:r.dAdd[d];
+  const gad=d=>isTotal()?r.gadD[d]:r.gadD[d];                          // gober: hoy 0, así total=adicional
+  const mun=d=>isTotal()?(r.munBD[d]+r.munAD[d]):r.munAD[d];
+  const uni=d=>Math.max(0, isTotal()?r.uniP[d]:r.uniA[d]);
+  const max=Math.max(...DEPT_ORDER.map(tot),1);
+  const ranked=[...DEPT_ORDER].sort((a,b)=>tot(b)-tot(a));
+  $('#deptBars').innerHTML=ranked.map(d=>{
+    const g=gad(d),m=mun(d),u=uni(d),t=tot(d);
+    const wPct=t/max*100;
+    return`<div class="row"><span>${titlecase(d)}</span>
+      <div class="track" style="width:${Math.max(4,wPct)}%">
+        <div style="flex:${g};background:var(--c-gad)" title="Gobernación"></div>
+        <div style="flex:${m};background:var(--c-mun)" title="Municipios"></div>
+        <div style="flex:${u};background:var(--c-uni)" title="Universidad"></div>
+      </div><span class="mono">${isTotal()?'':'+'}${fmtMM(t)}</span></div>`;
+  }).join('');
+}
+
+/* ===== RANKING ===== */
+let sortK='_munA',sortDir=-1;
+function renderRank(){
+  const q=($('#q').value||'').toLowerCase(), fd=$('#fDept').value;
+  let rows=ENT.filter(e=>(!q||e.n.toLowerCase().includes(q))&&(!fd||e.d===fd));
+  rows.sort((a,b)=>{const A=a[sortK],B=b[sortK];return(typeof A==='string')?A.localeCompare(B)*sortDir:(A-B)*sortDir;});
+  const maxA=Math.max(...ENT.map(e=>e._munA),1);
+  const tb=$('#rankT tbody');
+  tb.innerHTML=rows.slice(0,400).map(e=>`<tr>
+    <td>${e.n}</td><td>${titlecase(e.d)}</td><td class="mono">${nf.format(e.p)}</td>
+    <td class="mono">${fmtMM(e._munB)}</td>
+    <td class="mono barcell"><div class="bar" style="width:${e._munA/maxA*100}%"></div><span style="position:relative">+${fmtMM(e._munA)}</span></td>
+    <td class="mono">${fmtPC(e._munPC)}</td><td class="mono">${fmtGrow(e._grow)}</td></tr>`).join('')
+    || `<tr><td colspan="7" style="text-align:center;color:var(--muted)">Sin resultados</td></tr>`;
+}
+
+/* ===== CONTROLES: base de impuestos ===== */
+function renderPresets(){
+  $('#presets').innerHTML=PRESETS.map(p=>`<button class="chip" data-p="${p.id}">${p.label}</button>`).join('');
+  $$('#presets .chip').forEach(b=>b.onclick=()=>{
+    const p=PRESETS.find(x=>x.id===b.dataset.p);
+    sel=new Set(p.sel==='RI'?RI_IDS:p.sel); renderTaxes(); refresh();
+  });
+}
+function renderTaxes(){
+  const line=(t,locked)=>`<div class="tax ${locked?'lock':(sel.has(t.id)?'sel':'')}" data-id="${t.id}" ${locked?'':'role="button"'}>
+      <div class="box">${locked?'✕':(sel.has(t.id)?'✓':'')}</div>
+      <div class="nm">${t.sigla}<small>${t.desc}${t.nota?' · '+t.nota:''}</small></div>
+      <div class="amt">${nf1.format(t.ef/1e6)} <span class="u">MM</span></div></div>`;
+  $('#taxlist').innerHTML =
+    TAXES.map(t=>line(t,false)).join('')
+    + `<div class="hint" style="margin:10px 0 4px;font-weight:700;color:var(--muted)">No coparticipables (régimen propio / dominio subnacional)</div>`
+    + LOCKED.map(t=>line(t,true)).join('');
+  $$('#taxlist .tax:not(.lock)').forEach(el=>el.onclick=()=>{
+    const id=el.dataset.id; if(sel.has(id))sel.delete(id); else sel.add(id);
+    if(sel.size===0)sel.add(id); // no permitir base vacía
+    renderTaxes(); refresh();
+  });
+  // marcar preset activo
+  $$('#presets .chip').forEach(b=>{
+    const p=PRESETS.find(x=>x.id===b.dataset.p);
+    const want=new Set(p.sel==='RI'?RI_IDS:p.sel);
+    const same=want.size===sel.size&&[...want].every(x=>sel.has(x));
+    b.classList.toggle('on',same);
+  });
+}
+
+/* ===== CONTROLES: reparto (Auto ↔ Manual) ===== */
+let splitMode='auto';
+const SPLIT_ROWS=[
+  {k:'tgn',name:'TGN (Gobierno central)',css:'--c-tgn'},
+  {k:'gad',name:'Gobernaciones',css:'--c-gad'},
+  {k:'mun',name:'Municipios + GAIOC',css:'--c-mun'},
+  {k:'uni',name:'Universidades',css:'--c-uni'}
+];
+const r3=v=>Math.round(v*1000)/1000;
+function renderSplitControls(){
+  $('#splitGrid').innerHTML=SPLIT_ROWS.map(x=>`
+    <div class="splitrow">
+      <div class="sl-top">
+        <span class="nm"><span class="dot" style="background:var(${x.css})"></span>${x.name}</span>
+        <span class="pcell" id="pc_${x.k}"><input type="number" class="pctin" id="in_${x.k}" min="0" max="100" step="0.1" inputmode="decimal"><span class="pk">%</span></span>
+      </div>
+      <input type="range" class="sl" id="sl_${x.k}" min="0" max="100" step="0.1">
+      <div class="slbs" id="bs_${x.k}"></div>
+    </div>`).join('');
+  SPLIT_ROWS.forEach(x=>{
+    $('#sl_'+x.k).oninput=e=>onSplit(x.k,+e.target.value);
+    $('#in_'+x.k).oninput=e=>onSplit(x.k, e.target.value===''?0:+e.target.value, true);
+  });
+}
+function onSplit(k,v,fromInput){
+  v=Math.max(0,Math.min(100,v));
+  if(splitMode==='auto'){ (k==='tgn')?onTgn(v):onRest(k,v); }
+  else { split[k]=v; syncSplitUI(fromInput?k:null); refresh(); }
+}
+function onTgn(v){
+  const rest=100-v, old=split.gad+split.mun+split.uni;
+  if(old<=0){split.gad=rest/3;split.mun=rest/3;split.uni=rest/3;}
+  else{const f=rest/old;split.gad*=f;split.mun*=f;split.uni*=f;}
+  split.tgn=v; syncSplitUI(); refresh();
+}
+function onRest(key,v){
+  const rest=100-split.tgn; v=Math.min(v,rest);
+  const others=['gad','mun','uni'].filter(k=>k!==key);
+  const oldOther=split[others[0]]+split[others[1]], room=rest-v;
+  if(oldOther<=0){split[others[0]]=room/2;split[others[1]]=room/2;}
+  else{const f=room/oldOther;split[others[0]]*=f;split[others[1]]*=f;}
+  split[key]=v; syncSplitUI(); refresh();
+}
+function syncSplitUI(skip){
+  SPLIT_ROWS.forEach(x=>{
+    const inp=$('#in_'+x.k), sl=$('#sl_'+x.k);
+    if(inp && x.k!==skip && document.activeElement!==inp) inp.value=r3(split[x.k]);
+    if(sl) sl.value=split[x.k];
+  });
+  $('#splitMini').innerHTML=SPLIT_ROWS.map(x=>`<div style="flex:${Math.max(0,split[x.k])};background:var(${x.css})"></div>`).join('');
+  renderSumBar();
+}
+function renderSumBar(){
+  const sum=SPLIT_ROWS.reduce((s,x)=>s+split[x.k],0);
+  const ok=Math.abs(sum-100)<0.05;
+  SPLIT_ROWS.forEach(x=>{const pc=$('#pc_'+x.k); if(pc)pc.classList.toggle('bad',!ok&&splitMode==='manual');});
+  if(splitMode==='auto'){
+    const rest=100-split.tgn;
+    $('#sumBar').innerHTML=`<span class="ok">✓ Suma 100%</span><span class="muted2">· resto a repartir ${nf1.format(rest)}%</span>`;
+  }else if(ok){
+    $('#sumBar').innerHTML=`<span class="ok">✓ Suma 100% — reparto válido</span>`;
+  }else{
+    $('#sumBar').innerHTML=`<span class="bad">⚠ Suman ${nf1.format(sum)}% (deben sumar 100%)</span><button class="mini-fix" id="normBtn">Normalizar a 100%</button>`;
+    const nb=$('#normBtn'); if(nb) nb.onclick=normalizeSplit;
+  }
+}
+function updateSplitBs(r){
+  const B=base==='total'?r.sb.tot:r.sb.ef;
+  SPLIT_ROWS.forEach(x=>{const el=$('#bs_'+x.k); if(el) el.textContent='= '+fmtMM(B*split[x.k]/100);});
+}
+function normalizeSplit(){
+  const sum=SPLIT_ROWS.reduce((s,x)=>s+split[x.k],0);
+  if(sum>0)SPLIT_ROWS.forEach(x=>split[x.k]=split[x.k]/sum*100);
+  else split={tgn:100,gad:0,mun:0,uni:0};
+  syncSplitUI(); refresh();
+}
+function setSplitMode(m){splitMode=m; $$('#splitMode button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m)); syncSplitUI();}
+function resetSplit(){ split={tgn:74.645,gad:0,mun:20,uni:5.355}; syncSplitUI(); refresh(); }
+const SPLIT_PRESETS={vig:{tgn:74.645,gad:0,mun:20,uni:5.355},prop:{tgn:50,gad:17,mun:27,uni:6},mitad:{tgn:50,gad:25,mun:25,uni:0}};
+
+/* ===== CONTROLES: fondo de equidad ===== */
+function renderCrit(){
+  $('#critBox').innerHTML=CRIT.map(c=>`<div class="slrow">
+      <div class="top"><span title="${c.desc}">${c.label}</span><b id="w_${c.k}">${weights[c.k]}%</b></div>
+      <input type="range" id="sw_${c.k}" min="0" max="100" step="1" value="${weights[c.k]}"></div>`).join('')
+    +`<button class="reset" id="resetW">↺ Restablecer pesos</button>`;
+  CRIT.forEach(c=>$('#sw_'+c.k).oninput=e=>onWeight(c.k,+e.target.value));
+  $('#resetW').onclick=()=>{weights={...DEF_W};syncCrit();refresh();};
+}
+function syncCrit(){CRIT.forEach(c=>{$('#w_'+c.k).textContent=nf.format(weights[c.k])+'%';$('#sw_'+c.k).value=weights[c.k];});}
+function onWeight(key,v){
+  const others=CRIT.map(c=>c.k).filter(k=>k!==key);
+  const oldOther=others.reduce((s,k)=>s+weights[k],0), room=100-v;
+  if(oldOther<=0)others.forEach(k=>weights[k]=room/others.length);
+  else others.forEach(k=>weights[k]=weights[k]*room/oldOther);
+  weights[key]=v; syncCrit(); refresh();
+}
+
+/* ===== METRIC SEGMENT ===== */
+function syncMetricSeg(){
+  const AB=isTotal()?'Total Bs':'Adicional Bs';
+  const opts=geoMode()==='dep'
+    ? [{k:'total',t:AB},{k:'crec',t:'Crecim. gober.'}]
+    : [{k:'tot',t:AB},{k:'pc',t:'Por habitante'},{k:'crec',t:'Crecimiento'}];
+  if(!opts.find(o=>o.k===mapMetric)) mapMetric=opts[0].k;
+  $('#metricSeg').innerHTML=opts.map(o=>`<button data-m="${o.k}" class="${o.k===mapMetric?'on':''}">${o.t}</button>`).join('');
+  $$('#metricSeg button').forEach(b=>b.onclick=()=>{mapMetric=b.dataset.m;syncMetricSeg();paintMap();if(!pinned)showDefault();});
+}
+
+/* ===== BASE SELECTED READOUT ===== */
+function refresh(){
+  const r=compute(); window._r=r;
+  $('#baseMM').textContent=fmtMM(base==='total'?r.sb.tot:r.sb.ef);
+  updateSplitBs(r); renderSplit(r); renderDeptBars(r); renderRank();
+  paintMap(); if(!pinned)showDefault();
+}
+
+/* ===== METODOLOGÍA ===== */
+function renderMeth(){
+  $('#meth').innerHTML=`
+  <p><b>Masa coparticipable.</b> Solo la <b>renta interna nacional</b> entra a coparticipación (Ley 1551 art. 19; Ley 031 D.T. 3ª y 4ª): IVA, RC-IVA, IT, IUE, ICE, ISAE y el Gravamen Arancelario. Cada impuesto se lee del percibido 2025 del Presupuesto Abierto (MEFP).</p>
+  <p><b>Efectivo vs. certificados.</b> La ley coparticipa la recaudación <b>en efectivo</b>; los pagos con certificados de crédito fiscal quedan íntegros en el TGN. Por defecto la base es efectivo; el toggle "+ Certificados" es un supuesto (ese tramo hoy lo retiene el TGN, y así entra en la comparación).</p>
+  <p><b>Reparto vigente.</b> Municipios + GAIOC <b>20%</b> por población (último censo); universidades <b>5%</b> por población departamental, más <b>0,355%</b> de la UPEA (Ley 195/2011, descontado del TGN); gobernaciones <b>0%</b>. El TGN retiene el residual ≈ 74,645%.</p>
+  <p><b>Modelo incremental.</b> El tablero mide el <b>adicional</b> = tu escenario − régimen vigente. El 20% municipal vigente ya está dentro de los ingresos 2025, así que el crecimiento se calcula solo sobre lo nuevo. El fondo de equidad reparte <b>únicamente los puntos municipales adicionales</b>; el 20% legal sigue por población.</p>
+  <p><b>No coparticipables.</b> IDH e IEHD (régimen propio de hidrocarburos), IPJ (Ley 060), ITF (Ley 3446, 100% TGN), regímenes especiales (RAU/RTS/STI) e impuestos de dominio municipal/departamental (IPBI, IPVA, IMT, etc.).</p>
+  <p><b>Supuestos y limitaciones.</b> (1) Es un ejercicio <b>ilustrativo</b>, no una asignación oficial. (2) El modo <b>Adicional</b> mide lo nuevo respecto al régimen vigente; el modo <b>Total</b>, el monto completo que recibiría cada nivel bajo tu escenario. (3) Las <b>gobernaciones</b> se reparten per cápita departamental: es un supuesto de modelación (hoy no reciben coparticipación de renta interna). (4) El <b>Gravamen Arancelario</b> entra a la masa sobre <b>base neta</b>: se descuenta el presupuesto de Aduana (tope 10% de su recaudación, Ley 2042 art. 25). (5) La <b>UPEA</b> (0,355%) se ancla a La Paz. (6) Cifras de la <b>gestión 2025</b>: al cambiar de año, cambian. (7) La geometría del Salar de Uyuni no la cubre ningún municipio en la capa oficial; se rellena con una silueta neutra.</p>
+  <p><b>Fuentes e insumos del Observatorio.</b> Recaudación: MEFP Presupuesto Abierto, ingreso 2025 (percibido). Población y NBI: Censo INE 2024. Fragilidad fiscal e ingresos corrientes municipales: SIGEP / <b>Atlas Fiscal Municipal</b>. Ingresos corrientes de gobernaciones: <b>CAIF de las 9 gobernaciones</b> (Observatorio de Finanzas Departamentales). Geometría: OEP 2025 (municipios) disuelta a departamentos.</p>`;
+}
+
+/* ===== COMPARADOR DE ESCENARIOS ===== */
+let scenarios=[];
+function presetLabelFor(selSet){
+  for(const p of PRESETS){const w=new Set(p.sel==='RI'?RI_IDS:p.sel);if(w.size===selSet.size&&[...w].every(x=>selSet.has(x)))return p.label;}
+  return selSet.size+' impuestos';
+}
+function scenarioName(){const s=split;return `${presetLabelFor(sel)} · ${nf.format(s.tgn)}/${nf.format(s.gad)}/${nf.format(s.mun)}/${nf.format(s.uni)}`;}
+function saveScenario(){
+  const r=window._r; if(scenarios.length>=4)scenarios.shift();
+  scenarios.push({name:scenarioName(),base,sel:[...sel],split:{...split},weights:{...weights},
+    B:r.B,poolP:{...r.poolP},poolA:{...r.poolA},dTot:{...r.dTot}});
+  renderComparator();
+}
+function loadScenario(i){
+  const s=scenarios[i]; base=s.base; sel=new Set(s.sel); split={...s.split}; weights={...s.weights};
+  $$('#baseSeg button').forEach(x=>x.classList.toggle('on',x.dataset.base===base));
+  renderTaxes(); syncSplitUI(); syncCrit(); refresh();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function removeScenario(i){scenarios.splice(i,1);renderComparator();}
+function renderComparator(){
+  const el=$('#cmpWrap');
+  if(!scenarios.length){el.innerHTML='<p style="color:var(--muted);font-size:13px;margin:10px 0 0">Todavía no guardaste escenarios. Configurá la base y el reparto arriba, y tocá <b>“Guardar escenario actual”</b> para compararlos.</p>';return;}
+  const money=(p,a)=>`<div>${fmtMM(p)}</div><div style="font-size:11px;color:${a>=0?'var(--pos)':'var(--accent)'}">${a>=0?'+':'−'}${fmtMM(Math.abs(a))}</div>`;
+  const topDept=s=>{let best=DEPT_ORDER[0];DEPT_ORDER.forEach(d=>{if(s.dTot[d]>s.dTot[best])best=d;});return titlecase(best);};
+  const cols=scenarios.map((s,i)=>`<th><div style="display:flex;flex-direction:column;gap:5px">
+      <span>${s.name}</span>
+      <span style="font-weight:400;font-size:10.5px;color:var(--muted)">masa ${fmtMM(s.B)}</span>
+      <span style="display:flex;gap:6px"><button class="cmpbtn" data-load="${i}">Cargar</button><button class="cmpbtn del" data-del="${i}">Quitar</button></span>
+    </div></th>`).join('');
+  const row=(label,css,pk)=>`<tr><td><span class="swatch" style="background:var(${css})"></span>${label}</td>${scenarios.map(s=>`<td class="mono">${money(s.poolP[pk],s.poolA[pk])}</td>`).join('')}</tr>`;
+  el.innerHTML=`<div class="scroll" style="margin-top:12px"><table class="cmp">
+    <thead><tr><th>Nivel · total (adicional)</th>${cols}</tr></thead>
+    <tbody>
+      ${row('TGN','--c-tgn','tgn')}${row('Gobernaciones','--c-gad','gad')}
+      ${row('Municipios + GAIOC','--c-mun','mun')}${row('Universidades','--c-uni','uni')}
+      <tr><td>Departamento que más gana</td>${scenarios.map(s=>`<td>${topDept(s)}</td>`).join('')}</tr>
+    </tbody></table></div>`;
+  $$('#cmpWrap [data-load]').forEach(b=>b.onclick=()=>loadScenario(+b.dataset.load));
+  $$('#cmpWrap [data-del]').forEach(b=>b.onclick=()=>removeScenario(+b.dataset.del));
+}
+
+/* ===== EVENTOS GLOBALES ===== */
+function initEvents(){
+  $('#saveScn').onclick=saveScenario;
+  $$('#baseSeg button').forEach(b=>b.onclick=()=>{base=b.dataset.base;$$('#baseSeg button').forEach(x=>x.classList.toggle('on',x===b));refresh();});
+  $$('#resMode button').forEach(b=>b.onclick=()=>{resultMode=b.dataset.r;$$('#resMode button').forEach(x=>x.classList.toggle('on',x===b));syncMetricSeg();refresh();});
+  $$('#viewSeg button').forEach(b=>b.onclick=()=>{
+    mapView=b.dataset.view; drill=null; pinned=null;
+    $$('#viewSeg button').forEach(x=>x.classList.toggle('on',x===b));
+    $('#backBtn').style.display='none'; renderPaths(); resetZoom(); syncMetricSeg(); paintMap(); showDefault();
+  });
+  $('#backBtn').onclick=()=>{drill=null;pinned=null;renderPaths();resetZoom();syncMetricSeg();paintMap();showDefault();$('#backBtn').style.display='none';};
+  $$('#splitMode button').forEach(b=>b.onclick=()=>setSplitMode(b.dataset.mode));
+  $$('.presetsplit .chip').forEach(b=>b.onclick=()=>{split={...SPLIT_PRESETS[b.dataset.sp]};syncSplitUI();refresh();});
+  $('#resetSplit').onclick=resetSplit;
+  $('#q').oninput=renderRank; $('#fDept').onchange=renderRank;
+  $$('#rankT th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortK===k)sortDir*=-1;else{sortK=k;sortDir=(k==='n'||k==='d')?1:-1;}renderRank();});
+  $('#zIn').onclick=()=>zoomAt(0.8,vb.x+vb.w/2,vb.y+vb.h/2);
+  $('#zOut').onclick=()=>zoomAt(1.25,vb.x+vb.w/2,vb.y+vb.h/2);
+  $('#zRe').onclick=resetZoom;
+  $('#themeBtn').onclick=()=>{const cur=document.documentElement.getAttribute('data-theme');const dark=cur? cur==='dark' : matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.setAttribute('data-theme',dark?'light':'dark');};
+  // filtro deptos
+  $('#fDept').innerHTML='<option value="">Todos los departamentos</option>'+DEPT_ORDER.map(d=>`<option value="${d}">${titlecase(d)}</option>`).join('');
+}
+
+/* ===== INIT ===== */
+renderPresets(); renderTaxes(); renderCrit(); renderSplitControls(); syncSplitUI(); renderMeth(); renderComparator();
+buildMap(); syncMetricSeg(); initEvents(); refresh();
+</script>
+</body>
+</html>
