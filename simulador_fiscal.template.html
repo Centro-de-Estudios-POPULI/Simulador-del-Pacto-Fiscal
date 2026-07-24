@@ -12,8 +12,8 @@
     --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     --serif:"Playfair Display",Georgia,"Times New Roman",serif;
     --mono:"Inter",ui-monospace,"Cascadia Mono",Consolas,monospace;
-    --accent:#b47a4f; --accent-bright:#8a5a37;
-    --c-tgn:#45607a; --c-gad:#b47a4f; --c-mun:#9d2b2b; --c-uni:#3f8a7d;
+    --accent:#c06a1e; --accent-bright:#9c5416;
+    --c-tgn:#455a68; --c-gad:#c06a1e; --c-mun:#9b2226; --c-uni:#0a9396;
     --ground:#fbfdff; --surface:#ffffff; --surface-2:#f4f7fb;
     --ink:#2d2e2f; --muted:#64748b; --tenue:#94a3b8; --line:#e2e6ee; --faint:#eef2f7;
     --pos:#2f7d5b; --error:#9d2b2b; --radius:12px; --glass:rgba(251,253,255,.72);
@@ -22,14 +22,14 @@
   @media (prefers-color-scheme:dark){
     :root{--ground:#12151b;--surface:#1a1e26;--surface-2:#161a21;--ink:#e8ecf2;
       --muted:#9aa6b6;--tenue:#6b7789;--line:#2a303b;--faint:#20252e;--glass:rgba(20,24,30,.72);
-      --accent-bright:#d19b71;--shadow:0 .5rem 1.5rem rgba(0,0,0,.4);--shadow-pop:0 .6rem 1.6rem rgba(0,0,0,.6);}
+      --accent-bright:#e0975a;--shadow:0 .5rem 1.5rem rgba(0,0,0,.4);--shadow-pop:0 .6rem 1.6rem rgba(0,0,0,.6);}
   }
   :root[data-theme="dark"]{--ground:#12151b;--surface:#1a1e26;--surface-2:#161a21;--ink:#e8ecf2;
     --muted:#9aa6b6;--tenue:#6b7789;--line:#2a303b;--faint:#20252e;--glass:rgba(20,24,30,.72);
-    --accent-bright:#d19b71;--shadow:0 .5rem 1.5rem rgba(0,0,0,.4);--shadow-pop:0 .6rem 1.6rem rgba(0,0,0,.6);}
+    --accent-bright:#e0975a;--shadow:0 .5rem 1.5rem rgba(0,0,0,.4);--shadow-pop:0 .6rem 1.6rem rgba(0,0,0,.6);}
   :root[data-theme="light"]{--ground:#fbfdff;--surface:#fff;--surface-2:#f4f7fb;--ink:#2d2e2f;
     --muted:#64748b;--tenue:#94a3b8;--line:#e2e6ee;--faint:#eef2f7;--glass:rgba(251,253,255,.72);
-    --accent-bright:#8a5a37;--shadow:0 .5rem 1.5rem #21354714;--shadow-pop:0 .6rem 1.6rem #2135471f;}
+    --accent-bright:#9c5416;--shadow:0 .5rem 1.5rem #21354714;--shadow-pop:0 .6rem 1.6rem #2135471f;}
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
     font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
@@ -42,18 +42,25 @@
   a{color:var(--accent-bright)}
   .microlab{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tenue)}
 
-  /* header */
-  header{position:sticky;top:0;z-index:30;background:var(--glass);
-    backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line)}
-  .bar{display:flex;align-items:center;gap:14px;height:62px}
+  /* header — masthead naranja del ecosistema OFPDT (igual que el mapa y el portal) */
+  header{position:sticky;top:0;z-index:30;
+    background:linear-gradient(135deg,#9c5416,#c06a1e 62%,#9c5416);
+    box-shadow:0 1px 0 rgba(0,0,0,.15),0 6px 18px rgba(120,60,10,.22)}
+  .bar{display:flex;align-items:center;gap:14px;height:56px}
   .brand{display:flex;align-items:center;gap:11px;min-width:0;flex:1 1 auto}
-  .brand .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(150deg,var(--accent),#9a663f);
-    flex:0 0 auto;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;letter-spacing:-.02em;
-    box-shadow:var(--shadow)}
+  .brand .mark{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.34);flex:0 0 auto;display:grid;place-items:center;
+    color:#fff;font-weight:800;font-size:12px;letter-spacing:-.02em}
   .brand .bt{display:flex;flex-direction:column;line-height:1.2;min-width:0}
-  .brand b{font-size:15px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .brand span{color:var(--muted);font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand b{font-size:15px;font-weight:800;letter-spacing:-.02em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand span{color:rgba(255,255,255,.72);font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .spacer{flex:1}
+  /* seg/icon-btn scoped al header naranja (blanco translúcido) */
+  header .seg{display:inline-flex;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26);border-radius:8px;padding:3px}
+  header .seg button{border:0;background:transparent;color:rgba(255,255,255,.82);font:inherit;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap}
+  header .seg button.on{background:rgba(255,255,255,.93);color:#8a4a12}
+  header .icon-btn{width:32px;height:32px;border-radius:7px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;font-size:15px;cursor:pointer;flex:0 0 auto}
+  /* seg/icon-btn genéricos del cuerpo (sobre fondo claro) */
   .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:3px}
   .seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;
     padding:6px 12px;border-radius:7px;cursor:pointer;white-space:nowrap}
@@ -423,7 +430,7 @@ const CRIT=[
   {k:'fr',label:'Fragilidad fiscal', desc:'Compensa la dependencia de transferencias'}
 ];
 const DEPT_ORDER=['SANTA CRUZ','LA PAZ','COCHABAMBA','POTOSI','CHUQUISACA','ORURO','TARIJA','BENI','PANDO'];
-const SCALE=['#f7e9e4','#e9b7a8','#d07d63','#ab3f2e','#6d1410'];
+const SCALE=['#f6ede0','#eac486','#dc9036','#bd551d','#7a1518'];
 const RECEPTORS=[
   {name:'TGN (Gobierno central)',short:'TGN',css:'--c-tgn',pk:'tgn'},
   {name:'Gobernaciones',short:'Gober.',css:'--c-gad',pk:'gad'},

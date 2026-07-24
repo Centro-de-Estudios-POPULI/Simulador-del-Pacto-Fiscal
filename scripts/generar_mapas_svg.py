@@ -5,12 +5,15 @@ de los GeoJSON oficiales, con UNA sola proyección compartida para que el mapa
 municipal y el departamental queden perfectamente alineados.
 
 Salidas (viewBox 1000 x 1132, igual que el escenario_it original):
-  data/mapa_muni.json  -> {w,h,paths:{ sigep -> "d" }}     (335 municipios + GAIOC)
+  data/mapa_muni.json  -> {w,h,paths:{ sigep -> "d" }}     (343 = 335 municipios + 8 GAIOC)
   data/mapa_dep.json   -> {w,h,paths:{ DPTO_UPPER -> "d" }} (9 departamentos)
 
-Fuentes GeoJSON (repo madre "Observatorio de Presupuesto Fiscal Departamental"):
-  municipal:      data/municipios_sim.geojson (ya en este repo, props.s = sigep)
-  departamental:  gobernaciones/_datos/_bolivia_deptos_simple.geojson (props.nombre, cod_dep)
+Fuente GeoJSON = MAPA MADRE (repo bo-geo-maestro), 343 entidades COMPLETAS con los
+6 que OEP/INE no separa (Soracachi 1435, San Pedro de Macha 1541, Raqaypampa 3301,
+Jatún Ayllu Yura 3501, Gutiérrez 3702, TIM 3801). Antes se usaba una geometría OEP
+incompleta (339 -> 337 paths) y esas 6 entidades salían sin polígono.
+  municipal:      bo-geo-maestro/geo/municipios.geojson   (props.sigep, props.dpto)
+  departamental:  bo-geo-maestro/geo/departamentos.geojson (no usado: el dep se disuelve del muni)
 """
 import json, os, math
 from shapely.geometry import shape, mapping
@@ -19,9 +22,9 @@ from shapely.ops import unary_union
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 PROY = os.path.dirname(ROOT)
-MUNI_GJ = os.path.join(ROOT, 'data', 'municipios_sim.geojson')
-DEP_GJ = os.path.join(PROY, 'Observatorio de Presupuesto Fiscal Departamental',
-                      'gobernaciones', '_datos', '_bolivia_deptos_simple.geojson')
+MADRE = os.path.join(PROY, 'bo-geo-maestro', 'geo')
+MUNI_GJ = os.path.join(MADRE, 'municipios.geojson')
+DEP_GJ = os.path.join(MADRE, 'departamentos.geojson')
 
 W, H = 1000, 1132
 PAD = 12  # margen en px
