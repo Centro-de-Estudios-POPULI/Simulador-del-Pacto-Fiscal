@@ -159,7 +159,7 @@
   .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--kc,var(--accent))}
   .kpi .lab{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);font-weight:600}
   .kpi .lab .pct{margin-left:auto;font-family:var(--mono);color:var(--ink)}
-  .kpi .big{font-family:var(--serif);font-size:25px;font-weight:600;margin:6px 0 2px}
+  .kpi .big{font-family:var(--sans);font-size:25px;font-weight:800;letter-spacing:-.015em;font-variant-numeric:tabular-nums;margin:6px 0 2px}
   .kpi .sub{font-size:11.5px;color:var(--muted)}
   .dot{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
 
@@ -729,7 +729,7 @@ const CRIT=[
   {k:'fr',label:'Fragilidad fiscal', desc:'Compensa la dependencia de transferencias'}
 ];
 const DEPT_ORDER=['SANTA CRUZ','LA PAZ','COCHABAMBA','POTOSI','CHUQUISACA','ORURO','TARIJA','BENI','PANDO'];
-const SCALE=['#024d69','#0a9396','#94d2bd','#e9d8a6','#ee9b00','#df5d25','#c71e1d','#9b2226'];
+const SCALE=['#024d69','#005f73','#0a9396','#94d2bd','#e9d8a6','#ee9b00','#df5d25','#c71e1d'];
 const RECEPTORS=[
   {name:'TGN (Gobierno central)',short:'TGN',css:'--c-tgn',pk:'tgn'},
   {name:'Gobernaciones',short:'Gober.',css:'--c-gad',pk:'gad'},
@@ -860,6 +860,9 @@ function computeDomain(r){
   else { const pool=drill?ENT.filter(e=>e.d===drill):ENT; vals=pool.map(metricValM).filter(v=>v>0).sort((a,b)=>a-b); }
   if(!vals.length){colorDomain=[0,1];return;}
   const q=p=>vals[Math.min(vals.length-1,Math.floor(p*(vals.length-1)))];
+  // 'crec' municipal = ratio adic/ing.corrientes, muy sesgado (municipios con ingreso ínfimo
+  // disparan el %); recorte más fuerte para que la escala y la leyenda no sean surrealistas.
+  if(mapMetric==='crec' && geoMode()!=='dep'){ colorDomain=[q(0.05),q(0.85)]; return; }
   colorDomain=[q(0.02),q(0.98)];
 }
 function colorScaled(v){const[a,b]=colorDomain;const t=b>a?(v-a)/(b-a):0;return ramp(t);}
@@ -931,7 +934,7 @@ function buildMap(){
 }
 function hoverAt(k){ if(geoMode()==='dep')showDept(k); else {const e=byS[k];if(e)showMuni(k);} }
 function clickAt(k){
-  if(geoMode()==='dep'){ drill=k; renderPaths(); zoomToDept(k); paintMap(); showDept(k); syncMetricSeg(); $('#backBtn').style.display=''; }
+  if(geoMode()==='dep'){ drill=k; mapMetric='tot'; renderPaths(); zoomToDept(k); syncMetricSeg(); paintMap(); showDept(k); $('#backBtn').style.display=''; }
   else { pinned=pinned===k?null:k; if(pinned)showMuni(k); else showDefault(); }
 }
 
