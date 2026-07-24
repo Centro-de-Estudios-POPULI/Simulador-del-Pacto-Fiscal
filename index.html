@@ -386,7 +386,7 @@
 
       <section>
         <h2>¿Cuánto va a cada universidad?</h2>
-        <div class="sub">El 5% universitario se reparte por <b>población departamental</b> entre la universidad pública autónoma de cada departamento; la <b>UPEA</b> recibe además el 0,355% (Ley 195/2011). Montos según tu escenario.</div>
+        <div class="sub">El 5% universitario se reparte por <b>población departamental</b> entre la universidad pública de cada departamento. En La Paz se divide entre la <b>UMSA</b> y la <b>UPEA</b> según la población de El Alto: la UPEA conserva su 0,355% fijo (Ley 195/2011) y suma su parte del adicional por población. Montos según tu escenario.</div>
         <div class="scroll"><table id="univT">
           <thead><tr><th>#</th><th>Universidad</th><th>Departamento</th><th id="univColH">Adicional (Bs MM)</th></tr></thead>
           <tbody id="univTbody"></tbody>
@@ -1053,14 +1053,21 @@ const UNIS=[
   {d:'BENI',       sig:'UAB',   nom:'Autónoma del Beni'},
   {d:'PANDO',      sig:'UAP',   nom:'Amazónica de Pando'},
 ];
+const EL_ALTO_SIGEP='1205';
 function renderUniv(){
   const r=window._r; if(!r)return; const T=isTotal();
-  const upeaP=r.B*Math.min(UPEA,split.uni/100), upeaV=r.EF*UPEA, upeaA=upeaP-upeaV;
-  const rows=UNIS.map(u=>{
-    const p=r.uniP[u.d]-(u.d===UPEA_DEPT?upeaP:0), v=r.uniV[u.d]-(u.d===UPEA_DEPT?upeaV:0);
-    return {sig:u.sig, nom:u.nom, dep:titlecase(u.d), m:T?p:(p-v)};
-  });
-  rows.push({sig:'UPEA', nom:'Pública de El Alto', dep:'La Paz · El Alto', m:T?upeaP:upeaA});
+  // La Paz se divide UMSA/UPEA por poblacion. La UPEA conserva su 0,355% fijo (vigente legal);
+  // el ADICIONAL universitario de La Paz se reparte por poblacion (El Alto -> UPEA, resto -> UMSA).
+  const upeaV=r.EF*UPEA, upeaP=r.B*Math.min(UPEA,split.uni/100);
+  const lpPoolV=r.uniV[UPEA_DEPT]-upeaV, lpPoolP=r.uniP[UPEA_DEPT]-upeaP;   // porcion "5%" de La Paz (sin UPEA)
+  const lpExtra=lpPoolP-lpPoolV;                                           // adicional de esa porcion
+  const eaPop=(byS[EL_ALTO_SIGEP]?byS[EL_ALTO_SIGEP].p:0);
+  const fEA=r.dpop[UPEA_DEPT]>0? eaPop/r.dpop[UPEA_DEPT] : 0;              // fraccion El Alto en La Paz
+  const umsaV=lpPoolV,  umsaP=lpPoolV+(1-fEA)*lpExtra;                     // UMSA: base + resto del extra
+  const upeaTV=upeaV,   upeaTP=upeaP+fEA*lpExtra;                          // UPEA: 0,355% fijo + El Alto del extra
+  const rows=UNIS.filter(u=>u.d!==UPEA_DEPT).map(u=>({sig:u.sig, nom:u.nom, dep:titlecase(u.d), m:T?r.uniP[u.d]:(r.uniP[u.d]-r.uniV[u.d])}));
+  rows.push({sig:'UMSA', nom:'Mayor de San Andrés', dep:'La Paz',          m:T?umsaP:(umsaP-umsaV)});
+  rows.push({sig:'UPEA', nom:'Pública de El Alto',  dep:'La Paz · El Alto', m:T?upeaTP:(upeaTP-upeaTV)});
   rows.sort((a,b)=>b.m-a.m);
   const tot=rows.reduce((s,u)=>s+u.m,0);
   $('#univColH').textContent=T?'Total (Bs MM)':'Adicional (Bs MM)';
