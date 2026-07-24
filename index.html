@@ -70,7 +70,10 @@
   /* hero */
   .hero{padding:34px 0 8px}
   .hero h1{font-size:clamp(26px,4vw,40px)}
-  .hero .lede{max-width:66ch;color:var(--muted);margin:12px 0 0;font-size:16px}
+  .hero .lede{max-width:70ch;color:var(--muted);margin:12px 0 0;font-size:16px}
+  .hero .lede-note{max-width:74ch;color:var(--muted);margin:14px 0 0;font-size:13px;line-height:1.62;
+    padding:4px 0 4px 14px;border-left:3px solid var(--accent)}
+  .hero .lede-note b{color:var(--ink);font-weight:700}
   .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
     color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);
     padding:4px 10px;border-radius:999px;margin-bottom:14px}
@@ -240,6 +243,20 @@
     .mapcol{flex:auto;width:100%}
     .readcol{position:static;width:100%}
     .meth{columns:1}
+    /* impuestos en fila horizontal con desplazamiento -> no empuja el mapa hacia abajo */
+    #taxlist{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:8px;padding:2px 0 10px;
+      scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+    #taxlist .tax{flex:0 0 auto;width:9.4rem;flex-direction:column;align-items:flex-start;gap:5px;
+      padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);
+      scroll-snap-align:start;position:relative}
+    #taxlist .tax.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+    #taxlist .tax .box{position:absolute;top:9px;right:9px;width:16px;height:16px}
+    #taxlist .tax .nm{font-size:12.5px;font-weight:700;padding-right:22px;line-height:1.2}
+    #taxlist .tax .nm small{display:none}
+    #taxlist .tax .amt{font-size:12.5px}
+    #taxlist .hint{flex:0 0 auto;width:6rem;align-self:stretch;display:flex;align-items:center;
+      margin:0;padding:0 6px;font-size:9.5px;line-height:1.25;color:var(--muted);
+      border-left:1px dashed var(--line);white-space:normal}
   }
 </style>
 </head>
@@ -263,11 +280,17 @@
 <main class="wrap">
   <div class="hero">
     <span class="tag">Módulo: coparticipación tributaria · Modelo incremental · Gestión 2025</span>
-    <h1>¿Y si Bolivia coparticipara otros impuestos —y con otro reparto?</h1>
-    <p class="lede">Elegí qué impuestos forman la <b>masa coparticipable</b> y movés cómo se reparte entre
-      el TGN, las gobernaciones, los municipios y las universidades. El tablero mide el <b>dinero adicional</b>
-      que cada nivel de gobierno y cada territorio recibiría respecto al régimen legal vigente
-      (Ley 1551 / Ley 031). Datos de recaudación 2025 del Presupuesto Abierto del MEFP.</p>
+    <h1>Simulador del Pacto Fiscal</h1>
+    <p class="lede">Una herramienta para <b>planear escenarios de redistribución</b> de la coparticipación
+      tributaria y <b>calcular su impacto presupuestario</b> en cada nivel de gobierno y cada territorio.
+      Elegí qué impuestos forman la <b>masa coparticipable</b> y cómo se reparte entre el TGN, las gobernaciones,
+      los municipios y las universidades; el tablero mide el <b>dinero adicional</b> respecto al régimen vigente
+      (Ley 1551 / Ley 031), con recaudación 2025 del Presupuesto Abierto del MEFP.</p>
+    <p class="lede-note">Calcular el reparto de recursos es <b>una sola cara</b> del pacto fiscal: no es todo lo
+      que una reforma necesita ni zanja el debate. Una <b>reforma integral hacia la descentralización</b> exige
+      también definir la <b>distribución de competencias y obligaciones</b> entre niveles de gobierno. Este simulador
+      permite planear escenarios y dimensionar su <b>costo presupuestario</b> —un insumo que debe leerse junto a esos
+      otros análisis, no una asignación oficial ni la última palabra sobre la reforma.</p>
   </div>
 
   <div class="grid">
@@ -706,7 +729,7 @@ const CRIT=[
   {k:'fr',label:'Fragilidad fiscal', desc:'Compensa la dependencia de transferencias'}
 ];
 const DEPT_ORDER=['SANTA CRUZ','LA PAZ','COCHABAMBA','POTOSI','CHUQUISACA','ORURO','TARIJA','BENI','PANDO'];
-const SCALE=['#e9d8a6','#ee9b00','#df5d25','#c71e1d','#9b2226'];
+const SCALE=['#024d69','#0a9396','#94d2bd','#e9d8a6','#ee9b00','#df5d25','#c71e1d','#9b2226'];
 const RECEPTORS=[
   {name:'TGN (Gobierno central)',short:'TGN',css:'--c-tgn',pk:'tgn'},
   {name:'Gobernaciones',short:'Gober.',css:'--c-gad',pk:'gad'},
@@ -1177,8 +1200,8 @@ function renderMeth(){
   <p><b>Reparto vigente.</b> Municipios + GAIOC <b>20%</b> por población (último censo); universidades <b>5%</b> por población departamental, más <b>0,355%</b> de la UPEA (Ley 195/2011, descontado del TGN); gobernaciones <b>0%</b>. El TGN retiene el residual ≈ 74,645%.</p>
   <p><b>Modelo incremental.</b> El tablero mide el <b>adicional</b> = tu escenario − régimen vigente. El 20% municipal vigente ya está dentro de los ingresos 2025, así que el crecimiento se calcula solo sobre lo nuevo. El fondo de equidad reparte <b>únicamente los puntos municipales adicionales</b>; el 20% legal sigue por población.</p>
   <p><b>No coparticipables.</b> IDH e IEHD (régimen propio de hidrocarburos), IPJ (Ley 060), ITF (Ley 3446, 100% TGN), regímenes especiales (RAU/RTS/STI) e impuestos de dominio municipal/departamental (IPBI, IPVA, IMT, etc.).</p>
-  <p><b>Supuestos y limitaciones.</b> (1) Es un ejercicio <b>ilustrativo</b>, no una asignación oficial. (2) El modo <b>Adicional</b> mide lo nuevo respecto al régimen vigente; el modo <b>Total</b>, el monto completo que recibiría cada nivel bajo tu escenario. (3) Las <b>gobernaciones</b> se reparten per cápita departamental: es un supuesto de modelación (hoy no reciben coparticipación de renta interna). (4) El <b>Gravamen Arancelario</b> entra a la masa sobre <b>base neta</b>: se descuenta el presupuesto de Aduana (tope 10% de su recaudación, Ley 2042 art. 25). (5) La <b>UPEA</b> (0,355%) se ancla a La Paz. (6) Cifras de la <b>gestión 2025</b>: al cambiar de año, cambian. (7) La geometría del Salar de Uyuni no la cubre ningún municipio en la capa oficial; se rellena con una silueta neutra.</p>
-  <p><b>Fuentes e insumos del Observatorio.</b> Recaudación: MEFP Presupuesto Abierto, ingreso 2025 (percibido). Población y NBI: Censo INE 2024. Fragilidad fiscal e ingresos corrientes municipales: SIGEP / <b>Atlas Fiscal Municipal</b>. Ingresos corrientes de gobernaciones: <b>CAIF de las 9 gobernaciones</b> (Observatorio de Finanzas Departamentales). Geometría: OEP 2025 (municipios) disuelta a departamentos.</p>`;
+  <p><b>Supuestos y limitaciones.</b> (1) <b>Alcance.</b> Calcula el reparto de recursos y su impacto presupuestario; es un ejercicio <b>ilustrativo</b>, no una asignación oficial ni la última palabra sobre la reforma. El pacto fiscal abarca además la <b>distribución de competencias y obligaciones</b> entre niveles de gobierno —una reforma integral hacia la descentralización requiere ese análisis complementario, que este tablero no reemplaza. (2) El modo <b>Adicional</b> mide lo nuevo respecto al régimen vigente; el modo <b>Total</b>, el monto completo que recibiría cada nivel bajo tu escenario. (3) Las <b>gobernaciones</b> se reparten per cápita departamental: es un supuesto de modelación (hoy no reciben coparticipación de renta interna). (4) El <b>Gravamen Arancelario</b> entra a la masa sobre <b>base neta</b>: se descuenta el presupuesto de Aduana (tope 10% de su recaudación, Ley 2042 art. 25). (5) La <b>UPEA</b> (0,355%) se ancla a La Paz. (6) Cifras de la <b>gestión 2025</b>: al cambiar de año, cambian. (7) La geometría del Salar de Uyuni no la cubre ningún municipio en la capa oficial; se rellena con una silueta neutra.</p>
+  <p><b>Fuentes e insumos del Observatorio.</b> Recaudación: MEFP Presupuesto Abierto, ingreso 2025 (percibido). Población y NBI: Censo INE 2024. Fragilidad fiscal e ingresos corrientes municipales: SIGEP / <b>Atlas Fiscal Municipal</b>. Ingresos corrientes de gobernaciones: <b>CAIF de las 9 gobernaciones</b> (Observatorio de Finanzas Departamentales). Geometría: <b>mapa madre</b> del Observatorio (bo-geo-maestro, 343 entidades), disuelta a departamentos.</p>`;
 }
 
 /* ===== COMPARADOR DE ESCENARIOS ===== */
