@@ -13,7 +13,7 @@
     --serif:"Playfair Display",Georgia,"Times New Roman",serif;
     --mono:"Inter",ui-monospace,"Cascadia Mono",Consolas,monospace;
     --accent:#c06a1e; --accent-bright:#9c5416;
-    --c-tgn:#455a68; --c-gad:#c06a1e; --c-mun:#9b2226; --c-uni:#0a9396;
+    --c-tgn:#024d69; --c-gad:#df5d25; --c-mun:#9b2226; --c-uni:#0a9396;
     --ground:#fbfdff; --surface:#ffffff; --surface-2:#f4f7fb;
     --ink:#2d2e2f; --muted:#64748b; --tenue:#94a3b8; --line:#e2e6ee; --faint:#eef2f7;
     --pos:#2f7d5b; --error:#9d2b2b; --radius:12px; --glass:rgba(251,253,255,.72);
@@ -429,7 +429,7 @@ const CRIT=[
   {k:'fr',label:'Fragilidad fiscal', desc:'Compensa la dependencia de transferencias'}
 ];
 const DEPT_ORDER=['SANTA CRUZ','LA PAZ','COCHABAMBA','POTOSI','CHUQUISACA','ORURO','TARIJA','BENI','PANDO'];
-const SCALE=['#f6ede0','#eac486','#dc9036','#bd551d','#7a1518'];
+const SCALE=['#e9d8a6','#ee9b00','#df5d25','#c71e1d','#9b2226'];
 const RECEPTORS=[
   {name:'TGN (Gobierno central)',short:'TGN',css:'--c-tgn',pk:'tgn'},
   {name:'Gobernaciones',short:'Gober.',css:'--c-gad',pk:'gad'},
@@ -664,8 +664,7 @@ function showDept(d){
       <dt><span class="swatch" style="background:var(--c-uni)"></span>Universidad${T?'':' (adic.)'}</dt><dd>${T?fmtMM(u):sgn(u)}</dd>
       <dt><b>Total ${T?'departamento':'adicional'}</b></dt><dd><b>${T?fmtMM(tt):sgn(tt)}</b></dd>
       <dt>Crecim. gobernación</dt><dd>${fmtGrow(r.gGrow[d])}</dd>
-    </dl>
-    <p style="margin:10px 0 0;color:var(--muted);font-size:12px">Clic para ver el detalle municipal.</p>`);
+    </dl>`);
 }
 function showMuni(k){
   const e=byS[k]; if(!e)return; const T=isTotal();
