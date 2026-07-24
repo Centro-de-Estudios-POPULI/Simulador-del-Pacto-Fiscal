@@ -385,6 +385,16 @@
       </section>
 
       <section>
+        <h2>¿Cuánto va a cada universidad?</h2>
+        <div class="sub">El 5% universitario se reparte por <b>población departamental</b> entre la universidad pública autónoma de cada departamento; la <b>UPEA</b> recibe además el 0,355% (Ley 195/2011). Montos según tu escenario.</div>
+        <div class="scroll"><table id="univT">
+          <thead><tr><th>#</th><th>Universidad</th><th>Departamento</th><th id="univColH">Adicional (Bs MM)</th></tr></thead>
+          <tbody id="univTbody"></tbody>
+        </table></div>
+        <div class="hint" style="margin-top:8px">Reparto <b>modelado</b> por población. La asignación efectiva entre las universidades del sistema público sigue la fórmula del CEUB y puede diferir de este prorrateo.</div>
+      </section>
+
+      <section>
         <h2>Ranking de entidades</h2>
         <div class="sub">Las 343 entidades (335 municipios + 8 autonomías indígenas), con su adicional municipal.</div>
         <div class="toolbar">
@@ -754,6 +764,37 @@ function renderDeptBars(r){
   }).join('');
 }
 
+/* ===== UNIVERSIDADES ===== */
+const UNIS=[
+  {d:'CHUQUISACA', sig:'USFX',  nom:'San Francisco Xavier'},
+  {d:'LA PAZ',     sig:'UMSA',  nom:'Mayor de San Andrés'},
+  {d:'COCHABAMBA', sig:'UMSS',  nom:'Mayor de San Simón'},
+  {d:'ORURO',      sig:'UTO',   nom:'Técnica de Oruro'},
+  {d:'POTOSI',     sig:'UATF',  nom:'Autónoma Tomás Frías'},
+  {d:'TARIJA',     sig:'UAJMS', nom:'Juan Misael Saracho'},
+  {d:'SANTA CRUZ', sig:'UAGRM', nom:'Gabriel René Moreno'},
+  {d:'BENI',       sig:'UAB',   nom:'Autónoma del Beni'},
+  {d:'PANDO',      sig:'UAP',   nom:'Amazónica de Pando'},
+];
+function renderUniv(){
+  const r=window._r; if(!r)return; const T=isTotal();
+  const upeaP=r.B*Math.min(UPEA,split.uni/100), upeaV=r.EF*UPEA, upeaA=upeaP-upeaV;
+  const rows=UNIS.map(u=>{
+    const p=r.uniP[u.d]-(u.d===UPEA_DEPT?upeaP:0), v=r.uniV[u.d]-(u.d===UPEA_DEPT?upeaV:0);
+    return {sig:u.sig, nom:u.nom, dep:titlecase(u.d), m:T?p:(p-v)};
+  });
+  rows.push({sig:'UPEA', nom:'Pública de El Alto', dep:'La Paz · El Alto', m:T?upeaP:upeaA});
+  rows.sort((a,b)=>b.m-a.m);
+  const tot=rows.reduce((s,u)=>s+u.m,0);
+  $('#univColH').textContent=T?'Total (Bs MM)':'Adicional (Bs MM)';
+  $('#univTbody').innerHTML=rows.map((u,i)=>`<tr>
+    <td class="mono">${i+1}</td>
+    <td><b>${u.sig}</b> <span style="color:var(--muted)">· ${u.nom}</span></td>
+    <td>${u.dep}</td>
+    <td class="mono">${T?'':'+'}${fmtMM(u.m)}</td></tr>`).join('')
+    + `<tr style="border-top:2px solid var(--line)"><td></td><td><b>Total universidades</b></td><td></td><td class="mono"><b>${T?'':'+'}${fmtMM(tot)}</b></td></tr>`;
+}
+
 /* ===== RANKING ===== */
 let sortK='_munA',sortDir=-1;
 function renderRank(){
@@ -914,7 +955,7 @@ function syncMetricSeg(){
 function refresh(){
   const r=compute(); window._r=r;
   $('#baseMM').textContent=fmtMM(base==='total'?r.sb.tot:r.sb.ef);
-  updateSplitBs(r); renderSplit(r); renderDeptBars(r); renderRank();
+  updateSplitBs(r); renderSplit(r); renderDeptBars(r); renderUniv(); renderRank();
   paintMap(); if(!pinned)showDefault();
 }
 
